@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from .. import models
+from ..audit import get_acting_user_id, log_action
 from ..database import get_db
 from ..schemas import IncidentCreate, IncidentOut
 
@@ -14,7 +15,7 @@ def list_incidents(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=IncidentOut)
-def create_incident(payload: IncidentCreate, db: Session = Depends(get_db)):
+def create_incident(payload: IncidentCreate, db: Session = Depends(get_db), user_id: str | None = Depends(get_acting_user_id)):
     incident = models.Incident(
         type_incident=payload.type_incident,
         niveau_gravite=payload.niveau_gravite,
@@ -27,4 +28,5 @@ def create_incident(payload: IncidentCreate, db: Session = Depends(get_db)):
     db.add(incident)
     db.commit()
     db.refresh(incident)
+    log_action(db, user_id=user_id, action="create", table_cible="incidents", enregistrement_id=incident.id)
     return incident

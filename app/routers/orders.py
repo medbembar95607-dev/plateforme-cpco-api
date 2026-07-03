@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from .. import models
+from ..audit import get_acting_user_id, log_action
 from ..database import get_db
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -33,7 +34,7 @@ def list_orders(db: Session = Depends(get_db)):
 
 
 @router.post("/{order_id}/advance")
-def advance_order(order_id: str, db: Session = Depends(get_db)):
+def advance_order(order_id: str, db: Session = Depends(get_db), user_id: str | None = Depends(get_acting_user_id)):
     """Fait passer un ordre à l'étape suivante du workflow (brouillon -> signé -> diffusé)."""
     order = db.get(models.Order, order_id)
     if order is None:
@@ -43,4 +44,5 @@ def advance_order(order_id: str, db: Session = Depends(get_db)):
     order.statut = NEXT_STATUT[order.statut]
     db.commit()
     db.refresh(order)
+    log_action(db, user_id=user_id, action="update", table_cible="orders", enregistrement_id=order.id)
     return _serialize(order)

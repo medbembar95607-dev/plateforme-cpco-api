@@ -32,7 +32,16 @@ def list_roles():
 @router.get("/audit-log")
 def list_audit_log(db: Session = Depends(get_db)):
     entries = db.query(models.AuditLog).order_by(models.AuditLog.horodatage.desc()).limit(50).all()
-    return [
-        {"horodatage": e.horodatage.isoformat(), "userId": e.user_id, "action": e.action, "tableCible": e.table_cible}
-        for e in entries
-    ]
+    out = []
+    for e in entries:
+        utilisateur = db.get(models.User, e.user_id) if e.user_id else None
+        out.append(
+            {
+                "horodatage": e.horodatage.isoformat(),
+                "utilisateur": utilisateur.nom_complet if utilisateur else "Non identifié",
+                "action": e.action,
+                "tableCible": e.table_cible,
+                "enregistrementId": e.enregistrement_id,
+            }
+        )
+    return out
