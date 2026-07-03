@@ -47,10 +47,13 @@ app/
 | `GET /api/alerts`, `POST /api/alerts/{id}/acknowledge` | Écran Alertes |
 | `GET /api/admin/users`, `/admin/roles`, `/admin/audit-log` | Écran Administration |
 
+## Journal d'audit (`audit_log`)
+
+Alimenté par `app/audit.py` (`log_action`) à chaque écriture sensible (`orders.advance`, `alerts.acknowledge`, `incidents.create`). Pas de vraie authentification : l'"utilisateur actif" est choisi dans un sélecteur de démonstration côté frontend (`UserSwitcher.tsx`) et transmis via l'en-tête `X-User-Id` ; `get_acting_user_id` (dépendance FastAPI) le lit, sans le vérifier. Une action sans en-tête est journalisée avec `user_id = null` (affiché "Non identifié" côté écran Administration).
+
 ## Limitations connues
 
-- Pas d'authentification : tous les endpoints sont ouverts, pas de vérification de rôle/permission côté backend (RBAC affiché à l'écran Administration mais pas encore appliqué)
-- `audit_log` existe dans le modèle mais n'est alimentée par aucun endpoint pour l'instant (journal des actions vide dans l'écran Administration)
+- Pas d'authentification : tous les endpoints sont ouverts, pas de vérification de rôle/permission côté backend (RBAC affiché à l'écran Administration mais pas encore appliqué). L'en-tête `X-User-Id` n'est pas vérifié, n'importe quel appelant peut prétendre être n'importe qui — acceptable en dev, à corriger avant tout déploiement réel
 - Pas de tables `roles`/`permissions`/`role_permissions` en base : `/admin/roles` renvoie un dictionnaire statique en dur dans `routers/admin.py`
 - `unit_id` de `users` non exploité par l'API (pas de filtrage par unité/chaîne de commandement, contrairement au RLS hiérarchique du MVP `cadrage-app-c2`)
 - Géométries en `lon`/`lat` simples ou JSON, pas de vrais types PostGIS — voir la section Stack ci-dessus pour la migration prévue
