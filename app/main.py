@@ -8,6 +8,7 @@ app = FastAPI(title="Plateforme CPCO — API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["https://medbembar95607-dev.github.io"],
     allow_origin_regex=r"http://localhost:\d+",
     allow_methods=["*"],
     allow_headers=["*"],

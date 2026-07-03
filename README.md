@@ -51,6 +51,17 @@ app/
 
 Alimenté par `app/audit.py` (`log_action`) à chaque écriture sensible (`orders.advance`, `alerts.acknowledge`, `incidents.create`). Pas de vraie authentification : l'"utilisateur actif" est choisi dans un sélecteur de démonstration côté frontend (`UserSwitcher.tsx`) et transmis via l'en-tête `X-User-Id` ; `get_acting_user_id` (dépendance FastAPI) le lit, sans le vérifier. Une action sans en-tête est journalisée avec `user_id = null` (affiché "Non identifié" côté écran Administration).
 
+## Déploiement (démonstration)
+
+Dépôt : https://github.com/medbembar95607-dev/plateforme-cpco-api
+
+Hébergé sur [Render](https://render.com) (plan gratuit), configuré via `render.yaml` à la racine (Blueprint) :
+1. Créer un compte Render, connecter le compte GitHub `medbembar95607-dev`
+2. "New +" → "Blueprint" → sélectionner `plateforme-cpco-api` → Render détecte `render.yaml` et propose le service `plateforme-cpco-api` (build `pip install -r requirements.txt`, start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`)
+3. Déployer — Render fournit une URL du type `https://plateforme-cpco-api.onrender.com`, à reporter dans `VITE_API_URL` côté frontend (`../plateforme-cpco-app/.env.production`)
+
+**Limitation importante du plan gratuit** : le disque est éphémère — `cpco_dev.db` est recréée et repeuplée à chaque redéploiement/redémarrage du service (y compris après une mise en veille pour inactivité, fréquente sur le plan gratuit). Attendu et acceptable pour une démonstration ; à revoir avec un vrai PostgreSQL/PostGIS avant tout usage réel (voir section Stack).
+
 ## Limitations connues
 
 - Pas d'authentification : tous les endpoints sont ouverts, pas de vérification de rôle/permission côté backend (RBAC affiché à l'écran Administration mais pas encore appliqué). L'en-tête `X-User-Id` n'est pas vérifié, n'importe quel appelant peut prétendre être n'importe qui — acceptable en dev, à corriger avant tout déploiement réel
