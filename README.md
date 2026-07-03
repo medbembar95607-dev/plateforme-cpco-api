@@ -53,12 +53,11 @@ Alimenté par `app/audit.py` (`log_action`) à chaque écriture sensible (`order
 
 ## Déploiement (démonstration)
 
-Dépôt : https://github.com/medbembar95607-dev/plateforme-cpco-api
+**En ligne : https://plateforme-cpco-api.onrender.com** (documentation interactive : `/docs`)
 
-Hébergé sur [Render](https://render.com) (plan gratuit), configuré via `render.yaml` à la racine (Blueprint) :
-1. Créer un compte Render, connecter le compte GitHub `medbembar95607-dev`
-2. "New +" → "Blueprint" → sélectionner `plateforme-cpco-api` → Render détecte `render.yaml` et propose le service `plateforme-cpco-api` (build `pip install -r requirements.txt`, start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`)
-3. Déployer — Render fournit une URL du type `https://plateforme-cpco-api.onrender.com`, à reporter dans `VITE_API_URL` côté frontend (`../plateforme-cpco-app/.env.production`)
+Dépôt : https://github.com/medbembar95607-dev/plateforme-cpco-api — hébergé sur [Render](https://render.com) (plan gratuit), déployé via Blueprint à partir de `render.yaml` (build `pip install -r requirements.txt`, start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`). Déploiement continu : tout push sur `main` redéploie automatiquement.
+
+CORS (`app/main.py`) autorise explicitement les origines des frontends déployés (GitHub Pages, Netlify) en plus de `localhost:*` en dev — toute nouvelle origine de démo doit y être ajoutée.
 
 **Limitation importante du plan gratuit** : le disque est éphémère — `cpco_dev.db` est recréée et repeuplée à chaque redéploiement/redémarrage du service (y compris après une mise en veille pour inactivité, fréquente sur le plan gratuit). Attendu et acceptable pour une démonstration ; à revoir avec un vrai PostgreSQL/PostGIS avant tout usage réel (voir section Stack).
 
