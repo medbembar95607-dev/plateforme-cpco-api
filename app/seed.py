@@ -39,7 +39,7 @@ def seed(db: Session) -> None:
 
     db.add(models.Threat(
         nom="Groupe hostile détecté", type_menace="groupe_hostile", niveau_menace="critique",
-        statut="confirmee", classification="confidentiel", lon=-6.117, lat=14.733,  # Sokolo (Mali)
+        statut="confirmee", classification="confidentiel", lon=-7.283, lat=15.167,  # Nara (Mali)
     ))
 
     db.add(models.Checkpoint(
