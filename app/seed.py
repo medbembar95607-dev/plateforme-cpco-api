@@ -54,8 +54,7 @@ def seed(db: Session) -> None:
     ))
     db.add(models.OperationalArea(
         nom="Zone OPS Sable", type_zone="zone_ops", niveau_risque=2, classification="confidentiel",
-        # Kaédi (Mauritanie) — agrandie pour rester visible à l'échelle nationale
-        geom_json=json.dumps([[-13.65, 16.0], [-13.35, 16.0], [-13.35, 16.3], [-13.65, 16.3], [-13.65, 16.0]]),
+        geom_json=json.dumps([[-6.534, 16.601], [-6.234, 16.601], [-6.234, 16.901], [-6.534, 16.901], [-6.534, 16.601]]),
     ))
     db.add(models.ProgressAxis(nom="Axe de progression", geom_json=json.dumps([[-16.03, 18.14], [-15.90, 18.24]])))
 
