@@ -19,7 +19,7 @@ def seed(db: Session) -> None:
     u1 = models.Unit(code_unite="BAT-1", nom_unite="Bataillon 1", type_unite="infanterie", echelon="bataillon", effectif=520, statut="en_mission", communication="stable")
     u2 = models.Unit(code_unite="CIE-ALPHA", nom_unite="Compagnie Alpha", type_unite="infanterie", echelon="compagnie", effectif=140, statut="en_progression", communication="stable")
     u3 = models.Unit(code_unite="PA-NORD", nom_unite="Poste Avancé Nord", type_unite="pc", echelon="section", effectif=48, statut="disponible", communication="stable")
-    u4 = models.Unit(code_unite="CONVOI-LIMA", nom_unite="Convoi Lima", type_unite="logistique", echelon="section", effectif=36, statut="communication_degradee", communication="degradee")
+    u4 = models.Unit(code_unite="CONVOI-LIMA", nom_unite="Convoi", type_unite="logistique", echelon="section", effectif=36, statut="communication_degradee", communication="degradee")
     u5 = models.Unit(code_unite="POSTE-LOG-NORD", nom_unite="Poste logistique Nord", type_unite="logistique", echelon="section", effectif=20, statut="disponible", communication="stable")
     db.add_all([pc, u1, u2, u3, u4, u5])
     db.flush()
@@ -30,7 +30,7 @@ def seed(db: Session) -> None:
         (u1, -7.25, 16.62, "12:33"),    # Bataillon 1 -> Néma
         (u2, -7.025414608093178, 15.705384312755095, "12:24"),    # Compagnie Alpha
         (u3, -11.60, 20.93, "12:08"),   # Poste Avancé Nord -> Ouadâne
-        (u4, -5.774114140770708, 15.707085189958388, "11:51"),    # Convoi Lima
+        (u4, -5.774114140770708, 15.707085189958388, "11:51"),    # Convoi
         (u5, -13.05, 20.52, "11:58"),   # Poste logistique Nord -> Atar
         (pc, -15.99, 18.18, "12:00"),   # PC CPCO -> inchangé (secteur Nouakchott)
     ]
@@ -100,7 +100,7 @@ def seed(db: Session) -> None:
     db.flush()
 
     o1 = models.Order(numero_ordre="OPORD-2026-014", type_ordre="OPORD", classification="secret", objet="Sécurisation de l'axe nord", contenu="Sécuriser l'axe de progression nord et maintenir les checkpoints Bravo et Charlie sous contrôle jusqu'à nouvel ordre.", statut="diffuse", emetteur="Col. Ba, Commandement CPCO", operation_id=op1.id, date_emission=datetime(2026, 7, 1, 8, 0))
-    o2 = models.Order(numero_ordre="FRAGO-2026-031", type_ordre="FRAGO", classification="confidentiel", objet="Ravitaillement prioritaire Convoi Lima", contenu="Organiser un ravitaillement en carburant et munitions pour le Convoi Lima dès rétablissement de la liaison.", statut="signe", emetteur="Cdt Sy, Officier opérations", operation_id=op2.id, date_emission=datetime(2026, 7, 3, 9, 15))
+    o2 = models.Order(numero_ordre="FRAGO-2026-031", type_ordre="FRAGO", classification="confidentiel", objet="Ravitaillement prioritaire Convoi", contenu="Organiser un ravitaillement en carburant et munitions pour le Convoi dès rétablissement de la liaison.", statut="signe", emetteur="Cdt Sy, Officier opérations", operation_id=op2.id, date_emission=datetime(2026, 7, 3, 9, 15))
     o3 = models.Order(numero_ordre="WARNO-2026-009", type_ordre="WARNO", classification="secret", objet="Renforcement surveillance Zone A3", contenu="Préparer un renforcement du dispositif de surveillance sur la Zone A3 suite à confirmation de menace.", statut="brouillon", emetteur="Cne Diop, Officier renseignement", operation_id=op3.id, date_emission=None)
     db.add_all([o1, o2, o3])
     db.flush()
@@ -113,14 +113,14 @@ def seed(db: Session) -> None:
 
     db.add_all([
         models.Incident(type_incident="renseignement", niveau_gravite="critique", localite="Zone A3", description="Groupe hostile détecté par patrouille, confirmé par renseignement SIGINT.", statut="en_cours", declarant="Compagnie Alpha", date_incident=datetime(2026, 7, 3, 12, 38)),
-        models.Incident(type_incident="communication", niveau_gravite="moyenne", localite="Axe Nord-Ouest", description="Perte de liaison radio prolongée avec le Convoi Lima.", statut="nouveau", declarant="PC CPCO", date_incident=datetime(2026, 7, 3, 11, 51)),
+        models.Incident(type_incident="communication", niveau_gravite="moyenne", localite="Axe Nord-Ouest", description="Perte de liaison radio prolongée avec le Convoi.", statut="nouveau", declarant="PC CPCO", date_incident=datetime(2026, 7, 3, 11, 51)),
         models.Incident(type_incident="logistique", niveau_gravite="faible", localite="Poste logistique Nord", description="Retard de livraison de pièces de maintenance.", statut="traite", declarant="Officier logistique", date_incident=datetime(2026, 7, 2, 16, 20)),
     ])
 
     db.add_all([
         models.Alert(type_alerte="menace", niveau="critique", message="Menace confirmée en Zone A3 — mouvement suspect observé.", statut="active", date_creation=datetime(2026, 7, 3, 12, 38)),
         models.Alert(type_alerte="logistique", niveau="attention", message="Compagnie Alpha sous seuil carburant (45%).", statut="active", date_creation=datetime(2026, 7, 3, 12, 12)),
-        models.Alert(type_alerte="communication", niveau="attention", message="Communication dégradée avec Convoi Lima.", statut="active", date_creation=datetime(2026, 7, 3, 11, 51)),
+        models.Alert(type_alerte="communication", niveau="attention", message="Communication dégradée avec Convoi.", statut="active", date_creation=datetime(2026, 7, 3, 11, 51)),
         models.Alert(type_alerte="logistique", niveau="info", message="Ravitaillement disponible au Poste logistique Nord pour deux unités.", statut="resolue", date_creation=datetime(2026, 7, 3, 11, 58)),
     ])
 
