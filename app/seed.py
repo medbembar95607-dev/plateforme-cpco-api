@@ -24,25 +24,27 @@ def seed(db: Session) -> None:
     db.add_all([pc, u1, u2, u3, u4, u5])
     db.flush()
 
+    # Positions réparties sur le territoire mauritanien (+ Léré au Mali pour la menace),
+    # sur demande de Bardas le 2026-07-03 — coordonnées approximatives des localités citées.
     positions = [
-        (u1, -15.9785, 18.205, "12:33"),
-        (u2, -16.045, 18.165, "12:24"),
-        (u3, -15.955, 18.252, "12:08"),
-        (u4, -16.015, 18.128, "11:51"),
-        (u5, -16.00, 18.19, "11:58"),
-        (pc, -15.99, 18.18, "12:00"),
+        (u1, -7.25, 16.62, "12:33"),    # Bataillon 1 -> Néma
+        (u2, -7.42, 15.68, "12:24"),    # Compagnie Alpha -> Fassala
+        (u3, -11.60, 20.93, "12:08"),   # Poste Avancé Nord -> Ouadâne
+        (u4, -5.93, 15.43, "11:51"),    # Convoi Lima -> Bassiknou
+        (u5, -13.05, 20.52, "11:58"),   # Poste logistique Nord -> Atar
+        (pc, -15.99, 18.18, "12:00"),   # PC CPCO -> inchangé (secteur Nouakchott)
     ]
     for unit, lon, lat, _heure in positions:
         db.add(models.UnitPosition(unit_id=unit.id, lon=lon, lat=lat, source="manuel"))
 
     db.add(models.Threat(
         nom="Groupe hostile détecté", type_menace="groupe_hostile", niveau_menace="critique",
-        statut="confirmee", classification="confidentiel", lon=-15.915, lat=18.238,
+        statut="confirmee", classification="confidentiel", lon=-10.87, lat=15.75,  # Léré (Mali)
     ))
 
     db.add(models.Checkpoint(
         nom="Checkpoint Bravo", ordre_passage=1, statut="prevu",
-        dernier_rapport="RAS", lon=-15.985, lat=18.172,
+        dernier_rapport="RAS", lon=-6.15, lat=15.32,  # Adel Bagrou
     ))
 
     db.add(models.OperationalArea(
