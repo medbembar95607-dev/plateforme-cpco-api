@@ -44,7 +44,7 @@ def seed(db: Session) -> None:
 
     db.add(models.Checkpoint(
         nom="Checkpoint Bravo", ordre_passage=1, statut="prevu",
-        dernier_rapport="RAS", lon=-6.15, lat=15.32,  # Adel Bagrou
+        dernier_rapport="RAS", lon=-5.512285501482432, lat=15.526512758109305,
     ))
 
     db.add(models.OperationalArea(
