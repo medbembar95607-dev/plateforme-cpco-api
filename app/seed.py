@@ -53,7 +53,7 @@ def seed(db: Session) -> None:
         geom_json=json.dumps([[-8.05, 15.2], [-7.75, 15.2], [-7.75, 15.5], [-8.05, 15.5], [-8.05, 15.2]]),
     ))
     db.add(models.OperationalArea(
-        nom="Zone OPS Sable", type_zone="zone_ops", niveau_risque=2, classification="confidentiel",
+        nom="Zone OPS", type_zone="zone_ops", niveau_risque=2, classification="confidentiel",
         geom_json=json.dumps([[-6.534, 16.601], [-6.234, 16.601], [-6.234, 16.901], [-6.534, 16.901], [-6.534, 16.601]]),
     ))
     db.add(models.ProgressAxis(nom="Axe de progression", geom_json=json.dumps([[-16.03, 18.14], [-15.90, 18.24]])))
