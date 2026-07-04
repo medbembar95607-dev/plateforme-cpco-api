@@ -28,7 +28,7 @@ def seed(db: Session) -> None:
     # sur demande de Bardas le 2026-07-03 — coordonnées approximatives des localités citées.
     positions = [
         (u1, -7.25, 16.62, "12:33"),    # Bataillon 1 -> Néma
-        (u2, -6.15, 15.50, "12:24"),    # Compagnie Alpha -> juste au nord d'Adel Bagrou
+        (u2, -7.025414608093178, 15.705384312755095, "12:24"),    # Compagnie Alpha
         (u3, -11.60, 20.93, "12:08"),   # Poste Avancé Nord -> Ouadâne
         (u4, -5.93, 15.43, "11:51"),    # Convoi Lima -> Bassiknou
         (u5, -13.05, 20.52, "11:58"),   # Poste logistique Nord -> Atar
