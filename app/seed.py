@@ -49,8 +49,8 @@ def seed(db: Session) -> None:
 
     db.add(models.OperationalArea(
         nom="Zone menace A3", type_zone="zone_menace", niveau_risque=4, classification="confidentiel",
-        # Nara (Mali) — agrandie pour rester visible à l'échelle nationale
-        geom_json=json.dumps([[-7.433, 15.017], [-7.133, 15.017], [-7.133, 15.317], [-7.433, 15.317], [-7.433, 15.017]]),
+        # Décalée vers la frontière mauritanienne (ouest de Nara) pour ne pas se superposer au marqueur de menace
+        geom_json=json.dumps([[-8.05, 15.2], [-7.75, 15.2], [-7.75, 15.5], [-8.05, 15.5], [-8.05, 15.2]]),
     ))
     db.add(models.OperationalArea(
         nom="Zone OPS Sable", type_zone="zone_ops", niveau_risque=2, classification="confidentiel",
