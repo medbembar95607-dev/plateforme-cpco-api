@@ -123,12 +123,61 @@ def seed(db: Session) -> None:
         models.Alert(type_alerte="logistique", niveau="info", message="Ravitaillement disponible au Poste logistique Nord pour deux unités.", statut="resolue", date_creation=datetime(2026, 7, 3, 11, 58)),
     ])
 
+    col_ba = models.User(username="col.ba", nom_complet="Col. Ba", grade="Colonel", unit_id=pc.id, role="commandement", clearance_level="tres_secret")
     db.add_all([
-        models.User(username="col.ba", nom_complet="Col. Ba", grade="Colonel", unit_id=pc.id, role="commandement", clearance_level="tres_secret"),
+        col_ba,
         models.User(username="cdt.sy", nom_complet="Cdt Sy", grade="Commandant", unit_id=pc.id, role="officier_operations", clearance_level="secret"),
         models.User(username="cne.diop", nom_complet="Cne Diop", grade="Capitaine", unit_id=pc.id, role="officier_renseignement", clearance_level="secret"),
         models.User(username="lt.kane", nom_complet="Lt Kane", grade="Lieutenant", unit_id=pc.id, role="officier_logistique", clearance_level="confidentiel"),
         models.User(username="adj.fall", nom_complet="Adj. Fall", grade="Adjudant", unit_id=pc.id, role="administrateur", clearance_level="secret"),
+    ])
+    db.flush()
+
+    # Courrier du chef d'état-major : triage des correspondances remontant des subordonnés,
+    # du ministère et d'institutions externes (2026-07-03).
+    db.add_all([
+        models.Courrier(
+            numero_enregistrement="COUR-2026-0041", type_document="rapport", origine="subordonne",
+            expediteur="Cdt Sy, Officier opérations", objet="Compte rendu hebdomadaire des opérations",
+            resume="Bilan des opérations en cours : Sable Nord à 64%, aucune perte, ravitaillement Convoi en attente.",
+            contenu="Compte rendu détaillé de la semaine écoulée pour l'ensemble des opérations en cours dans le secteur Hodh Ech Chargui...",
+            classification="confidentiel", priorite="normal", statut="nouveau",
+            date_reception=datetime(2026, 7, 3, 8, 15), date_limite_reponse=datetime(2026, 7, 5, 18, 0),
+        ),
+        models.Courrier(
+            numero_enregistrement="COUR-2026-0042", type_document="lettre", origine="ministere_defense",
+            expediteur="Ministère de la Défense — Cabinet", objet="Demande de point de situation avant Conseil des ministres",
+            resume="Le cabinet du ministre demande un point de situation consolidé sur la Zone A3 avant le prochain Conseil des ministres.",
+            contenu="Le Ministre souhaite disposer d'un point de situation actualisé sur les opérations en cours dans la Zone A3 avant le Conseil des ministres de vendredi...",
+            classification="secret", priorite="tres_urgent", statut="nouveau",
+            date_reception=datetime(2026, 7, 3, 9, 0), date_limite_reponse=datetime(2026, 7, 3, 17, 0),
+        ),
+        models.Courrier(
+            numero_enregistrement="COUR-2026-0043", type_document="note", origine="institution_externe",
+            expediteur="Gendarmerie nationale — État-major", objet="Coordination zone frontalière Hodh Ech Chargui",
+            resume="La Gendarmerie signale une recrudescence de mouvements suspects côté malien et propose une réunion de coordination.",
+            contenu="Suite à plusieurs signalements de mouvements suspects dans la zone frontalière, l'État-major de la Gendarmerie nationale propose d'organiser une réunion de coordination inter-forces...",
+            classification="confidentiel", priorite="urgent", statut="nouveau",
+            date_reception=datetime(2026, 7, 3, 10, 30), date_limite_reponse=datetime(2026, 7, 4, 12, 0),
+        ),
+        models.Courrier(
+            numero_enregistrement="COUR-2026-0038", type_document="fiche", origine="subordonne",
+            expediteur="Cne Diop, Officier renseignement", objet="Fiche de synthèse — activité suspecte Nara",
+            resume="Synthèse renseignement confirmant la présence d'un groupe hostile dans le secteur de Nara.",
+            contenu="Fiche de synthèse renseignement établie à partir de plusieurs sources HUMINT et SIGINT convergentes sur la présence d'un groupe armé non identifié...",
+            classification="secret", priorite="urgent", statut="annote",
+            date_reception=datetime(2026, 7, 2, 14, 0), date_limite_reponse=datetime(2026, 7, 3, 12, 0),
+            annotation="Vu. Renforcer la surveillance et me tenir informé toutes les 6h. Voir avec DOP pour un dispositif complémentaire.",
+            annote_par=col_ba.id, date_annotation=datetime(2026, 7, 2, 16, 30),
+        ),
+        models.Courrier(
+            numero_enregistrement="COUR-2026-0035", type_document="compte_rendu", origine="institution_externe",
+            expediteur="Préfecture du Hodh Ech Chargui", objet="Situation sécuritaire zone civile",
+            resume="La préfecture confirme une situation calme dans les localités civiles, aucune action requise.",
+            contenu="Compte rendu de situation transmis par la préfecture confirmant l'absence d'incident notable dans les zones civiles du Hodh Ech Chargui...",
+            classification="diffusion_libre", priorite="normal", statut="classe_sans_suite",
+            date_reception=datetime(2026, 7, 1, 9, 0), date_limite_reponse=None,
+        ),
     ])
 
     db.commit()

@@ -248,3 +248,28 @@ class AuditLog(Base):
     table_cible: Mapped[str] = mapped_column(String(50))
     enregistrement_id: Mapped[str] = mapped_column(String(36))
     horodatage: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+# --- COURRIER (triage du chef d'état-major, 2026-07-03) -----------------------------
+
+class Courrier(Base):
+    __tablename__ = "courriers"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    numero_enregistrement: Mapped[str] = mapped_column(String(50))
+    type_document: Mapped[str] = mapped_column(String(30))  # note, message, fiche, rapport, compte_rendu, lettre
+    origine: Mapped[str] = mapped_column(String(30))  # subordonne, ministere_defense, institution_externe
+    expediteur: Mapped[str] = mapped_column(String(200))
+    objet: Mapped[str] = mapped_column(String(250))
+    resume: Mapped[str] = mapped_column(Text)
+    contenu: Mapped[str] = mapped_column(Text)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+    priorite: Mapped[str] = mapped_column(String(20), default="normal")  # normal, urgent, tres_urgent
+    statut: Mapped[str] = mapped_column(String(20), default="nouveau")  # nouveau, annote, oriente, classe_sans_suite, traite
+    date_reception: Mapped[datetime] = mapped_column(DateTime, default=now)
+    date_limite_reponse: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    annotation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    annote_par: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    date_annotation: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    oriente_vers: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    ordre_genere_id: Mapped[str | None] = mapped_column(ForeignKey("orders.id"), nullable=True)
