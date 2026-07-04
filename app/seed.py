@@ -30,7 +30,7 @@ def seed(db: Session) -> None:
         (u1, -7.25, 16.62, "12:33"),    # Bataillon 1 -> Néma
         (u2, -7.025414608093178, 15.705384312755095, "12:24"),    # Compagnie Alpha
         (u3, -11.60, 20.93, "12:08"),   # Poste Avancé Nord -> Ouadâne
-        (u4, -5.93, 15.43, "11:51"),    # Convoi Lima -> Bassiknou
+        (u4, -5.774114140770708, 15.707085189958388, "11:51"),    # Convoi Lima
         (u5, -13.05, 20.52, "11:58"),   # Poste logistique Nord -> Atar
         (pc, -15.99, 18.18, "12:00"),   # PC CPCO -> inchangé (secteur Nouakchott)
     ]
