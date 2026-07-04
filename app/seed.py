@@ -39,7 +39,7 @@ def seed(db: Session) -> None:
 
     db.add(models.Threat(
         nom="Groupe hostile détecté", type_menace="groupe_hostile", niveau_menace="critique",
-        statut="confirmee", classification="confidentiel", lon=-10.87, lat=15.75,  # Léré (Mali)
+        statut="confirmee", classification="confidentiel", lon=-6.117, lat=14.733,  # Sokolo (Mali)
     ))
 
     db.add(models.Checkpoint(
@@ -49,11 +49,13 @@ def seed(db: Session) -> None:
 
     db.add(models.OperationalArea(
         nom="Zone menace A3", type_zone="zone_menace", niveau_risque=4, classification="confidentiel",
-        geom_json=json.dumps([[-15.935, 18.222], [-15.895, 18.222], [-15.895, 18.252], [-15.935, 18.252], [-15.935, 18.222]]),
+        # Nara (Mali)
+        geom_json=json.dumps([[-7.303, 15.147], [-7.263, 15.147], [-7.263, 15.187], [-7.303, 15.187], [-7.303, 15.147]]),
     ))
     db.add(models.OperationalArea(
         nom="Zone OPS Sable", type_zone="zone_ops", niveau_risque=2, classification="confidentiel",
-        geom_json=json.dumps([[-16.06, 18.10], [-16.02, 18.10], [-16.02, 18.13], [-16.06, 18.13], [-16.06, 18.10]]),
+        # Kaédi (Mauritanie)
+        geom_json=json.dumps([[-13.52, 16.13], [-13.48, 16.13], [-13.48, 16.17], [-13.52, 16.17], [-13.52, 16.13]]),
     ))
     db.add(models.ProgressAxis(nom="Axe de progression", geom_json=json.dumps([[-16.03, 18.14], [-15.90, 18.24]])))
 
