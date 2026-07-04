@@ -15,7 +15,7 @@ def seed(db: Session) -> None:
     if db.query(models.Unit).count() > 0:
         return
 
-    pc = models.Unit(code_unite="PC-CPCO", nom_unite="PC CPCO", type_unite="pc", echelon="groupement", effectif=25, commandant="Col. Ba", statut="disponible", communication="stable")
+    pc = models.Unit(code_unite="PC-CPCO", nom_unite="PC COP", type_unite="pc", echelon="groupement", effectif=25, commandant="Col. Ba", statut="disponible", communication="stable")
     u1 = models.Unit(code_unite="BAT-1", nom_unite="Bataillon 1", type_unite="infanterie", echelon="bataillon", effectif=520, statut="en_mission", communication="stable")
     u2 = models.Unit(code_unite="CIE-ALPHA", nom_unite="Compagnie Alpha", type_unite="infanterie", echelon="compagnie", effectif=140, statut="en_progression", communication="stable")
     u3 = models.Unit(code_unite="PA-NORD", nom_unite="Poste Avancé Nord", type_unite="pc", echelon="section", effectif=48, statut="disponible", communication="stable")
@@ -32,7 +32,7 @@ def seed(db: Session) -> None:
         (u3, -11.60, 20.93, "12:08"),   # Poste Avancé Nord -> Ouadâne
         (u4, -5.774114140770708, 15.707085189958388, "11:51"),    # Convoi
         (u5, -13.05, 20.52, "11:58"),   # Poste logistique Nord -> Atar
-        (pc, -15.99, 18.18, "12:00"),   # PC CPCO -> inchangé (secteur Nouakchott)
+        (pc, -15.99, 18.18, "12:00"),   # PC COP -> inchangé (secteur Nouakchott)
     ]
     for unit, lon, lat, _heure in positions:
         db.add(models.UnitPosition(unit_id=unit.id, lon=lon, lat=lat, source="manuel"))
@@ -112,7 +112,7 @@ def seed(db: Session) -> None:
 
     db.add_all([
         models.Incident(type_incident="renseignement", niveau_gravite="critique", localite="Zone A3", description="Groupe hostile détecté par patrouille, confirmé par renseignement SIGINT.", statut="en_cours", declarant="Compagnie Alpha", date_incident=datetime(2026, 7, 3, 12, 38)),
-        models.Incident(type_incident="communication", niveau_gravite="moyenne", localite="Axe Nord-Ouest", description="Perte de liaison radio prolongée avec le Convoi.", statut="nouveau", declarant="PC CPCO", date_incident=datetime(2026, 7, 3, 11, 51)),
+        models.Incident(type_incident="communication", niveau_gravite="moyenne", localite="Axe Nord-Ouest", description="Perte de liaison radio prolongée avec le Convoi.", statut="nouveau", declarant="PC COP", date_incident=datetime(2026, 7, 3, 11, 51)),
         models.Incident(type_incident="logistique", niveau_gravite="faible", localite="Poste logistique Nord", description="Retard de livraison de pièces de maintenance.", statut="traite", declarant="Officier logistique", date_incident=datetime(2026, 7, 2, 16, 20)),
     ])
 
