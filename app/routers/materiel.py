@@ -10,6 +10,8 @@ ARMEES = ("terre", "air", "mer")
 
 
 def _serialize(m: models.Materiel) -> dict:
+    quantite_hors_service = 0 if m.etat == "operationnel" else m.quantite
+    quantite_operationnelle = m.quantite - quantite_hors_service
     return {
         "id": m.id,
         "nom": m.nom,
@@ -22,9 +24,11 @@ def _serialize(m: models.Materiel) -> dict:
         "statutDotation": m.statut_dotation,
         "etat": m.etat,
         "quantite": m.quantite,
+        "quantiteOperationnelle": quantite_operationnelle,
+        "quantiteHorsService": quantite_hors_service,
         "seuilAlerte": m.seuil_alerte,
         "dotationTed": m.dotation_ted,
-        "ecart": m.quantite - m.dotation_ted,
+        "ecart": quantite_operationnelle - m.dotation_ted,
         "classification": m.classification,
         "enAlerte": m.quantite < m.seuil_alerte,
     }
