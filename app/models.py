@@ -309,4 +309,5 @@ class Materiel(Base):
     etat: Mapped[str] = mapped_column(String(20), default="operationnel")  # operationnel, maintenance, hors_service
     quantite: Mapped[int] = mapped_column(Integer, default=1)
     seuil_alerte: Mapped[int] = mapped_column(Integer, default=0)
+    dotation_ted: Mapped[int] = mapped_column(Integer, default=0)  # nombre réglementaire (Tableau des Effectifs et Dotations)
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")

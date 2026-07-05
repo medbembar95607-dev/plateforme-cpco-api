@@ -220,63 +220,63 @@ def seed(db: Session) -> None:
             nom="VAB", categorie="vehicule", type_materiel="Véhicule blindé de transport de troupes", armee="terre",
             formation_affectation="Bataillon 1", fonction="Transport de troupes protégé",
             caracteristiques="4x4, blindage niveau 1, capacité 10 hommes",
-            statut_dotation="en_dotation", etat="operationnel", quantite=8, seuil_alerte=5, classification="confidentiel",
+            statut_dotation="en_dotation", etat="operationnel", quantite=8, seuil_alerte=5, dotation_ted=10, classification="confidentiel",
         ),
         models.Materiel(
             nom="FAMAS", categorie="arme", type_materiel="Fusil d'assaut", armee="terre",
             formation_affectation="Compagnie Alpha", fonction="Armement individuel",
             caracteristiques="Calibre 5.56mm, cadence 900 coups/min",
-            statut_dotation="en_dotation", etat="operationnel", quantite=140, seuil_alerte=100, classification="confidentiel",
+            statut_dotation="en_dotation", etat="operationnel", quantite=140, seuil_alerte=100, dotation_ted=150, classification="confidentiel",
         ),
         models.Materiel(
             nom="Munitions 7.62mm", categorie="munition", type_materiel="Cartouches mitrailleuse", armee="terre",
             formation_affectation="Dépôt central Nouakchott", fonction="Approvisionnement munitions",
             caracteristiques="Conditionnement caisses de 500",
-            statut_dotation="en_reserve", etat="operationnel", quantite=1200, seuil_alerte=5000, classification="secret",
+            statut_dotation="en_reserve", etat="operationnel", quantite=1200, seuil_alerte=5000, dotation_ted=1000, classification="secret",
         ),
         models.Materiel(
             nom="Poste radio PR4G", categorie="communication", type_materiel="Radio tactique VHF", armee="terre",
             formation_affectation="Bataillon 1", fonction="Transmission tactique",
             caracteristiques="Portée 30km, chiffrement intégré",
-            statut_dotation="en_dotation", etat="operationnel", quantite=12, seuil_alerte=10, classification="confidentiel",
+            statut_dotation="en_dotation", etat="operationnel", quantite=12, seuil_alerte=10, dotation_ted=12, classification="confidentiel",
         ),
         # Armée de l'Air
         models.Materiel(
             nom="Gazelle SA342", categorie="aeronef", type_materiel="Hélicoptère de reconnaissance", armee="air",
             formation_affectation="Base aérienne Nouakchott", fonction="Reconnaissance et appui",
             caracteristiques="Autonomie 3h30, équipage 2",
-            statut_dotation="en_dotation", etat="operationnel", quantite=3, seuil_alerte=2, classification="secret",
+            statut_dotation="en_dotation", etat="operationnel", quantite=3, seuil_alerte=2, dotation_ted=4, classification="secret",
         ),
         models.Materiel(
             nom="Pièces détachées moteur Astazou", categorie="equipement", type_materiel="Pièces de rechange aéronautiques", armee="air",
             formation_affectation="Base aérienne Nouakchott", fonction="Maintenance aéronefs",
             caracteristiques="Lot de rechange moteur turbine",
-            statut_dotation="en_reserve", etat="operationnel", quantite=2, seuil_alerte=4, classification="confidentiel",
+            statut_dotation="en_reserve", etat="operationnel", quantite=2, seuil_alerte=4, dotation_ted=5, classification="confidentiel",
         ),
         models.Materiel(
             nom="Jumelles de vision nocturne", categorie="optique", type_materiel="Optique de vision nocturne", armee="air",
             formation_affectation="Base aérienne Nouakchott", fonction="Observation nocturne",
             caracteristiques="Portée 300m, autonomie 8h",
-            statut_dotation="en_dotation", etat="operationnel", quantite=15, seuil_alerte=10, classification="confidentiel",
+            statut_dotation="en_dotation", etat="operationnel", quantite=15, seuil_alerte=10, dotation_ted=12, classification="confidentiel",
         ),
         # Marine
         models.Materiel(
             nom="Patrouilleur côtier", categorie="navire", type_materiel="Navire de surveillance côtière", armee="mer",
             formation_affectation="Base navale Nouadhibou", fonction="Surveillance des eaux territoriales",
             caracteristiques="Longueur 35m, vitesse max 22 nœuds",
-            statut_dotation="en_dotation", etat="maintenance", quantite=2, seuil_alerte=2, classification="secret",
+            statut_dotation="en_dotation", etat="maintenance", quantite=2, seuil_alerte=2, dotation_ted=3, classification="secret",
         ),
         models.Materiel(
             nom="Moteur hors-bord", categorie="equipement", type_materiel="Moteur d'embarcation rapide", armee="mer",
             formation_affectation="Base navale Nouadhibou", fonction="Propulsion embarcations légères",
             caracteristiques="Puissance 150cv",
-            statut_dotation="en_reserve", etat="operationnel", quantite=1, seuil_alerte=3, classification="confidentiel",
+            statut_dotation="en_reserve", etat="operationnel", quantite=1, seuil_alerte=3, dotation_ted=2, classification="confidentiel",
         ),
         models.Materiel(
             nom="Gilets de sauvetage", categorie="equipement", type_materiel="Équipement de sécurité maritime", armee="mer",
             formation_affectation="Base navale Nouadhibou", fonction="Sécurité individuelle en mer",
             caracteristiques="Homologation SOLAS",
-            statut_dotation="en_dotation", etat="operationnel", quantite=80, seuil_alerte=50, classification="diffusion_libre",
+            statut_dotation="en_dotation", etat="operationnel", quantite=80, seuil_alerte=50, dotation_ted=80, classification="diffusion_libre",
         ),
     ])
 

@@ -23,6 +23,8 @@ def _serialize(m: models.Materiel) -> dict:
         "etat": m.etat,
         "quantite": m.quantite,
         "seuilAlerte": m.seuil_alerte,
+        "dotationTed": m.dotation_ted,
+        "ecart": m.quantite - m.dotation_ted,
         "classification": m.classification,
         "enAlerte": m.quantite < m.seuil_alerte,
     }
