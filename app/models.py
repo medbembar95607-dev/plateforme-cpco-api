@@ -290,3 +290,23 @@ class RendezVous(Base):
     statut: Mapped[str] = mapped_column(String(20), default="a_confirmer")  # a_confirmer, confirme, annule
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+# --- MATÉRIEL (situation matériel toutes armées, 2026-07-05) -----------------------
+
+class Materiel(Base):
+    __tablename__ = "materiels"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    nom: Mapped[str] = mapped_column(String(200))
+    categorie: Mapped[str] = mapped_column(String(50))  # vehicule, arme, aeronef, navire, munition, communication, optique
+    type_materiel: Mapped[str] = mapped_column(String(100))
+    armee: Mapped[str] = mapped_column(String(20))  # terre, air, mer
+    formation_affectation: Mapped[str] = mapped_column(String(150))
+    fonction: Mapped[str] = mapped_column(String(200), default="")
+    caracteristiques: Mapped[str] = mapped_column(Text, default="")
+    statut_dotation: Mapped[str] = mapped_column(String(20), default="en_dotation")  # en_dotation, en_reserve
+    etat: Mapped[str] = mapped_column(String(20), default="operationnel")  # operationnel, maintenance, hors_service
+    quantite: Mapped[int] = mapped_column(Integer, default=1)
+    seuil_alerte: Mapped[int] = mapped_column(Integer, default=0)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
