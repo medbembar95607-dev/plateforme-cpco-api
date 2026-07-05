@@ -81,9 +81,9 @@ def seed(db: Session) -> None:
     db.add(models.AlertThreshold(type_stock="vivres", seuil_pct=30))
 
     logistique = {
-        u1: {"carburant": 80, "munitions": 65, "vivres": 78, "maintenance": 71},
-        u2: {"carburant": 45, "munitions": 90, "vivres": 54, "maintenance": 68},
-        u4: {"carburant": 28, "munitions": 38, "vivres": 62, "maintenance": 41},
+        u1: {"carburant": 80, "munitions": 65, "vivres": 78, "maintenance": 71, "armement": 90},
+        u2: {"carburant": 45, "munitions": 90, "vivres": 54, "maintenance": 68, "armement": 82},
+        u4: {"carburant": 28, "munitions": 38, "vivres": 62, "maintenance": 41, "armement": 55},
     }
     for unit, valeurs in logistique.items():
         for type_stock, pct in valeurs.items():
