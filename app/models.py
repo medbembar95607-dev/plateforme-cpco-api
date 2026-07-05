@@ -273,3 +273,20 @@ class Courrier(Base):
     date_annotation: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     oriente_vers: Mapped[str | None] = mapped_column(String(150), nullable=True)
     ordre_genere_id: Mapped[str | None] = mapped_column(ForeignKey("orders.id"), nullable=True)
+
+
+# --- AGENDA (calendrier des rendez-vous du chef, 2026-07-05) -----------------------
+
+class RendezVous(Base):
+    __tablename__ = "rendez_vous"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    titre: Mapped[str] = mapped_column(String(200))
+    type_rdv: Mapped[str] = mapped_column(String(30), default="reunion")  # reunion, audience, deplacement, ceremonie, briefing, autre
+    date_debut: Mapped[datetime] = mapped_column(DateTime)
+    date_fin: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    lieu: Mapped[str] = mapped_column(String(200), default="")
+    participants: Mapped[str] = mapped_column(String(300), default="")
+    statut: Mapped[str] = mapped_column(String(20), default="a_confirmer")  # a_confirmer, confirme, annule
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)

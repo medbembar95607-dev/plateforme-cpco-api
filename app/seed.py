@@ -180,6 +180,40 @@ def seed(db: Session) -> None:
         ),
     ])
 
+    db.add_all([
+        models.RendezVous(
+            titre="Point de situation hebdomadaire", type_rdv="briefing",
+            date_debut=datetime(2026, 7, 6, 8, 0), date_fin=datetime(2026, 7, 6, 9, 0),
+            lieu="PC CPCO — salle de crise", participants="État-major, officiers OPS/RENS/LOG",
+            statut="confirme", classification="confidentiel",
+        ),
+        models.RendezVous(
+            titre="Audience — Gouverneur du Hodh Ech Chargui", type_rdv="audience",
+            date_debut=datetime(2026, 7, 6, 11, 0), date_fin=datetime(2026, 7, 6, 12, 0),
+            lieu="Bureau du Chef d'état-major", participants="Gouverneur, Col. Ba",
+            statut="a_confirmer", classification="confidentiel",
+        ),
+        models.RendezVous(
+            titre="Conseil des ministres — point sécurité", type_rdv="reunion",
+            date_debut=datetime(2026, 7, 8, 9, 0), date_fin=datetime(2026, 7, 8, 11, 0),
+            lieu="Ministère de la Défense", participants="CEMGA, Ministre de la Défense",
+            statut="confirme", classification="secret",
+        ),
+        models.RendezVous(
+            titre="Déplacement — inspection Zone A3", type_rdv="deplacement",
+            date_debut=datetime(2026, 7, 9, 6, 0), date_fin=datetime(2026, 7, 9, 18, 0),
+            lieu="Zone A3", participants="Col. Ba, escorte Compagnie Alpha",
+            statut="a_confirmer", classification="secret",
+        ),
+        models.RendezVous(
+            titre="Cérémonie de passation — PC Avancé Nord", type_rdv="ceremonie",
+            date_debut=datetime(2026, 7, 4, 10, 0), date_fin=datetime(2026, 7, 4, 11, 30),
+            lieu="Poste Avancé Nord", participants="État-major, unités du secteur Nord",
+            statut="annule", classification="diffusion_libre",
+            notes="Reporté en raison des conditions météo.",
+        ),
+    ])
+
     db.commit()
 
 
