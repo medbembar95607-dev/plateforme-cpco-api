@@ -47,7 +47,8 @@ app/
 | `GET /api/alerts`, `POST /api/alerts/{id}/acknowledge` | Écran Alertes |
 | `GET /api/admin/users`, `/admin/roles`, `/admin/audit-log` | Écran Administration |
 | `GET /api/courriers`, `POST .../annoter`, `.../orienter`, `.../classer`, `.../traiter`, `.../generer-ordre` | Écran Courrier du Chef |
-| `GET /api/agenda`, `POST /api/agenda`, `POST .../confirmer`, `.../annuler` | Écran Calendrier du Chef |
+| `GET /api/agenda`, `POST /api/agenda`, `POST .../confirmer`, `.../annuler` | Écran Agenda du Chef |
+| `GET /api/materiels`, `GET /api/materiels/indicateurs` | Écran Situation Matériel |
 
 ## Journal d'audit (`audit_log`)
 
