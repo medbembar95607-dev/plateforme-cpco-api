@@ -259,6 +259,12 @@ def seed(db: Session) -> None:
             caracteristiques="Portée 300m, autonomie 8h",
             statut_dotation="en_dotation", etat="operationnel", quantite=15, seuil_alerte=10, dotation_ted=12, classification="confidentiel",
         ),
+        models.Materiel(
+            nom="Roquettes SNEB", categorie="munition", type_materiel="Roquettes air-sol", armee="air",
+            formation_affectation="Base aérienne Nouakchott", fonction="Armement d'appui hélicoptère",
+            caracteristiques="Calibre 68mm, conditionnement nacelle de 6",
+            statut_dotation="en_dotation", etat="operationnel", quantite=24, seuil_alerte=10, dotation_ted=20, classification="secret",
+        ),
         # Marine
         models.Materiel(
             nom="Patrouilleur côtier", categorie="navire", type_materiel="Navire de surveillance côtière", armee="mer",
@@ -277,6 +283,12 @@ def seed(db: Session) -> None:
             formation_affectation="Base navale Nouadhibou", fonction="Sécurité individuelle en mer",
             caracteristiques="Homologation SOLAS",
             statut_dotation="en_dotation", etat="operationnel", quantite=80, seuil_alerte=50, dotation_ted=80, classification="diffusion_libre",
+        ),
+        models.Materiel(
+            nom="Munitions 12.7mm", categorie="munition", type_materiel="Cartouches mitrailleuse navale", armee="mer",
+            formation_affectation="Base navale Nouadhibou", fonction="Armement de bord patrouilleur",
+            caracteristiques="Conditionnement caisses de 200",
+            statut_dotation="en_reserve", etat="operationnel", quantite=500, seuil_alerte=800, dotation_ted=600, classification="secret",
         ),
     ])
 
