@@ -343,6 +343,7 @@ class Militaire(Base):
     formation_affectation: Mapped[str] = mapped_column(String(150))
     date_naissance: Mapped[datetime] = mapped_column(DateTime)
     date_entree_service: Mapped[datetime] = mapped_column(DateTime)
+    date_prise_grade: Mapped[datetime] = mapped_column(DateTime)  # date d'accession au grade actuel (ancienneté au grade)
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
 
 

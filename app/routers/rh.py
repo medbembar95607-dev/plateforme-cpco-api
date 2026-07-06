@@ -41,6 +41,7 @@ def _serialize_militaire(m: models.Militaire) -> dict:
         "formationAffectation": m.formation_affectation,
         "age": round(_age(m.date_naissance)),
         "anciennete": round(_anciennete(m.date_entree_service)),
+        "ancienneteGrade": round(_anciennete(m.date_prise_grade)),
         "anneesAvantRetraite": _annees_avant_retraite(m),
         "procheRetraite": _annees_avant_retraite(m) <= 2,
         "classification": m.classification,
