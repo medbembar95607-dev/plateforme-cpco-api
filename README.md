@@ -49,6 +49,7 @@ app/
 | `GET /api/courriers`, `POST .../annoter`, `.../orienter`, `.../classer`, `.../traiter`, `.../generer-ordre` | Écran Courrier du Chef |
 | `GET /api/agenda`, `POST /api/agenda`, `POST .../confirmer`, `.../annuler` | Écran Agenda du Chef |
 | `GET /api/materiels`, `GET /api/materiels/indicateurs` | Écran Situation Matériel |
+| `GET /api/budget`, `GET /api/budget/indicateurs` | Écran Volet Financier |
 
 ## Journal d'audit (`audit_log`)
 
