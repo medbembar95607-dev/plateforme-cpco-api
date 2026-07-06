@@ -240,6 +240,30 @@ def seed(db: Session) -> None:
             caracteristiques="Portée 30km, chiffrement intégré",
             statut_dotation="en_dotation", etat="operationnel", quantite=12, seuil_alerte=10, dotation_ted=12, classification="confidentiel",
         ),
+        models.Materiel(
+            nom="Camion GBC 180", categorie="vehicule", type_materiel="Camion logistique tout-terrain", armee="terre",
+            formation_affectation="Dépôt central Nouakchott", fonction="Ravitaillement des unités",
+            caracteristiques="Charge utile 5 tonnes, 6x6",
+            statut_dotation="en_reserve", etat="operationnel", quantite=4, seuil_alerte=3, dotation_ted=6, classification="confidentiel",
+        ),
+        models.Materiel(
+            nom="Pistolet PAMAS G1", categorie="arme", type_materiel="Arme de poing", armee="terre",
+            formation_affectation="Dépôt central Nouakchott", fonction="Armement individuel officiers",
+            caracteristiques="Calibre 9mm, chargeur 15 coups",
+            statut_dotation="en_reserve", etat="operationnel", quantite=30, seuil_alerte=20, dotation_ted=25, classification="confidentiel",
+        ),
+        models.Materiel(
+            nom="Munitions 5.56mm", categorie="munition", type_materiel="Cartouches fusil d'assaut", armee="terre",
+            formation_affectation="Compagnie Alpha", fonction="Approvisionnement munitions",
+            caracteristiques="Conditionnement caisses de 1000",
+            statut_dotation="en_dotation", etat="operationnel", quantite=8000, seuil_alerte=5000, dotation_ted=8000, classification="secret",
+        ),
+        models.Materiel(
+            nom="Groupe électrogène", categorie="equipement", type_materiel="Générateur de campagne", armee="terre",
+            formation_affectation="Bataillon 1", fonction="Alimentation électrique de campagne",
+            caracteristiques="Puissance 20kVA",
+            statut_dotation="en_reserve", etat="operationnel", quantite=3, seuil_alerte=2, dotation_ted=4, classification="confidentiel",
+        ),
         # Armée de l'Air
         models.Materiel(
             nom="Gazelle SA342", categorie="aeronef", type_materiel="Hélicoptère de reconnaissance", armee="air",
@@ -265,6 +289,42 @@ def seed(db: Session) -> None:
             caracteristiques="Calibre 68mm, conditionnement nacelle de 6",
             statut_dotation="en_dotation", etat="operationnel", quantite=24, seuil_alerte=10, dotation_ted=20, classification="secret",
         ),
+        models.Materiel(
+            nom="Drone de reconnaissance", categorie="aeronef", type_materiel="Aéronef sans pilote", armee="air",
+            formation_affectation="Base aérienne Nouakchott", fonction="Reconnaissance longue durée",
+            caracteristiques="Autonomie 8h, altitude 4000m",
+            statut_dotation="en_reserve", etat="operationnel", quantite=1, seuil_alerte=2, dotation_ted=2, classification="secret",
+        ),
+        models.Materiel(
+            nom="Véhicule de piste", categorie="vehicule", type_materiel="Tracteur de piste aéronautique", armee="air",
+            formation_affectation="Base aérienne Nouakchott", fonction="Manutention aéronefs au sol",
+            caracteristiques="Traction 4x4, treuil intégré",
+            statut_dotation="en_dotation", etat="operationnel", quantite=2, seuil_alerte=1, dotation_ted=3, classification="confidentiel",
+        ),
+        models.Materiel(
+            nom="Véhicule de piste (rechange)", categorie="vehicule", type_materiel="Tracteur de piste aéronautique", armee="air",
+            formation_affectation="Base aérienne Nouakchott", fonction="Manutention aéronefs au sol",
+            caracteristiques="Traction 4x4, treuil intégré",
+            statut_dotation="en_reserve", etat="operationnel", quantite=1, seuil_alerte=1, dotation_ted=1, classification="confidentiel",
+        ),
+        models.Materiel(
+            nom="Mitrailleuse de sabord", categorie="arme", type_materiel="Mitrailleuse d'hélicoptère", armee="air",
+            formation_affectation="Base aérienne Nouakchott", fonction="Autodéfense en vol",
+            caracteristiques="Calibre 7.62mm, cadence 600 coups/min",
+            statut_dotation="en_dotation", etat="operationnel", quantite=2, seuil_alerte=2, dotation_ted=3, classification="secret",
+        ),
+        models.Materiel(
+            nom="Mitrailleuse de sabord (réserve)", categorie="arme", type_materiel="Mitrailleuse d'hélicoptère", armee="air",
+            formation_affectation="Base aérienne Nouakchott", fonction="Autodéfense en vol",
+            caracteristiques="Calibre 7.62mm, cadence 600 coups/min",
+            statut_dotation="en_reserve", etat="operationnel", quantite=1, seuil_alerte=1, dotation_ted=1, classification="secret",
+        ),
+        models.Materiel(
+            nom="Munitions 7.62mm (aviation)", categorie="munition", type_materiel="Cartouches mitrailleuse de bord", armee="air",
+            formation_affectation="Base aérienne Nouakchott", fonction="Approvisionnement armement de bord",
+            caracteristiques="Conditionnement bandes de 200",
+            statut_dotation="en_reserve", etat="operationnel", quantite=600, seuil_alerte=500, dotation_ted=500, classification="secret",
+        ),
         # Marine
         models.Materiel(
             nom="Patrouilleur côtier", categorie="navire", type_materiel="Navire de surveillance côtière", armee="mer",
@@ -289,6 +349,42 @@ def seed(db: Session) -> None:
             formation_affectation="Base navale Nouadhibou", fonction="Armement de bord patrouilleur",
             caracteristiques="Conditionnement caisses de 200",
             statut_dotation="en_reserve", etat="operationnel", quantite=500, seuil_alerte=800, dotation_ted=600, classification="secret",
+        ),
+        models.Materiel(
+            nom="Embarcation pneumatique rapide", categorie="navire", type_materiel="Embarcation d'intervention", armee="mer",
+            formation_affectation="Base navale Nouadhibou", fonction="Intervention rapide et visite de navires",
+            caracteristiques="Longueur 7m, vitesse max 35 nœuds",
+            statut_dotation="en_reserve", etat="operationnel", quantite=1, seuil_alerte=2, dotation_ted=2, classification="confidentiel",
+        ),
+        models.Materiel(
+            nom="Véhicule de servitude portuaire", categorie="vehicule", type_materiel="Véhicule utilitaire de quai", armee="mer",
+            formation_affectation="Base navale Nouadhibou", fonction="Manutention portuaire",
+            caracteristiques="Charge utile 2 tonnes",
+            statut_dotation="en_dotation", etat="operationnel", quantite=2, seuil_alerte=1, dotation_ted=2, classification="confidentiel",
+        ),
+        models.Materiel(
+            nom="Véhicule de servitude portuaire (rechange)", categorie="vehicule", type_materiel="Véhicule utilitaire de quai", armee="mer",
+            formation_affectation="Base navale Nouadhibou", fonction="Manutention portuaire",
+            caracteristiques="Charge utile 2 tonnes",
+            statut_dotation="en_reserve", etat="operationnel", quantite=1, seuil_alerte=1, dotation_ted=1, classification="confidentiel",
+        ),
+        models.Materiel(
+            nom="Mitrailleuse navale 12.7mm", categorie="arme", type_materiel="Mitrailleuse de pont", armee="mer",
+            formation_affectation="Base navale Nouadhibou", fonction="Armement de bord",
+            caracteristiques="Calibre 12.7mm, montage sur affût",
+            statut_dotation="en_dotation", etat="operationnel", quantite=2, seuil_alerte=2, dotation_ted=2, classification="secret",
+        ),
+        models.Materiel(
+            nom="Mitrailleuse navale 12.7mm (réserve)", categorie="arme", type_materiel="Mitrailleuse de pont", armee="mer",
+            formation_affectation="Base navale Nouadhibou", fonction="Armement de bord",
+            caracteristiques="Calibre 12.7mm, montage sur affût",
+            statut_dotation="en_reserve", etat="operationnel", quantite=1, seuil_alerte=1, dotation_ted=1, classification="secret",
+        ),
+        models.Materiel(
+            nom="Munitions 20mm", categorie="munition", type_materiel="Obus canon naval", armee="mer",
+            formation_affectation="Base navale Nouadhibou", fonction="Armement de bord patrouilleur",
+            caracteristiques="Conditionnement caisses de 100",
+            statut_dotation="en_dotation", etat="operationnel", quantite=400, seuil_alerte=300, dotation_ted=400, classification="secret",
         ),
     ])
 
