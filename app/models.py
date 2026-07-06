@@ -311,3 +311,19 @@ class Materiel(Base):
     seuil_alerte: Mapped[int] = mapped_column(Integer, default=0)
     dotation_ted: Mapped[int] = mapped_column(Integer, default=0)  # nombre réglementaire (Tableau des Effectifs et Dotations)
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+
+# --- BUDGET (volet financier, 2026-07-06) ------------------------------------------
+
+class LigneBudgetaire(Base):
+    __tablename__ = "lignes_budgetaires"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    libelle: Mapped[str] = mapped_column(String(200))
+    type_budget: Mapped[str] = mapped_column(String(20))  # fonctionnement, investissement
+    formation_beneficiaire: Mapped[str] = mapped_column(String(150), default="")
+    periode: Mapped[str] = mapped_column(String(20), default="")
+    montant_alloue: Mapped[float] = mapped_column(Float, default=0)
+    montant_consomme: Mapped[float] = mapped_column(Float, default=0)
+    seuil_alerte_pct: Mapped[float] = mapped_column(Float, default=80)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")

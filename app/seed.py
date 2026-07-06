@@ -388,6 +388,56 @@ def seed(db: Session) -> None:
         ),
     ])
 
+    db.add_all([
+        # Fonctionnement
+        models.LigneBudgetaire(
+            libelle="Solde et primes du personnel", type_budget="fonctionnement",
+            formation_beneficiaire="Toutes unités", periode="2026",
+            montant_alloue=500_000_000, montant_consomme=310_000_000, seuil_alerte_pct=80, classification="confidentiel",
+        ),
+        models.LigneBudgetaire(
+            libelle="Carburant et lubrifiants", type_budget="fonctionnement",
+            formation_beneficiaire="Toutes unités", periode="2026",
+            montant_alloue=80_000_000, montant_consomme=68_000_000, seuil_alerte_pct=80, classification="confidentiel",
+        ),
+        models.LigneBudgetaire(
+            libelle="Entretien véhicules et matériel", type_budget="fonctionnement",
+            formation_beneficiaire="Bataillon 1", periode="2026",
+            montant_alloue=45_000_000, montant_consomme=30_000_000, seuil_alerte_pct=80, classification="confidentiel",
+        ),
+        models.LigneBudgetaire(
+            libelle="Alimentation et vivres", type_budget="fonctionnement",
+            formation_beneficiaire="Toutes unités", periode="2026",
+            montant_alloue=60_000_000, montant_consomme=52_000_000, seuil_alerte_pct=85, classification="diffusion_libre",
+        ),
+        models.LigneBudgetaire(
+            libelle="Formation et instruction", type_budget="fonctionnement",
+            formation_beneficiaire="CSIC", periode="2026",
+            montant_alloue=25_000_000, montant_consomme=9_000_000, seuil_alerte_pct=80, classification="confidentiel",
+        ),
+        # Investissement
+        models.LigneBudgetaire(
+            libelle="Acquisition véhicules blindés", type_budget="investissement",
+            formation_beneficiaire="Bataillon 1", periode="2026",
+            montant_alloue=200_000_000, montant_consomme=150_000_000, seuil_alerte_pct=90, classification="secret",
+        ),
+        models.LigneBudgetaire(
+            libelle="Modernisation systèmes de communication", type_budget="investissement",
+            formation_beneficiaire="CSIC", periode="2026",
+            montant_alloue=90_000_000, montant_consomme=91_500_000, seuil_alerte_pct=90, classification="secret",
+        ),
+        models.LigneBudgetaire(
+            libelle="Infrastructure — Base aérienne Nouakchott", type_budget="investissement",
+            formation_beneficiaire="Base aérienne Nouakchott", periode="2026",
+            montant_alloue=120_000_000, montant_consomme=40_000_000, seuil_alerte_pct=80, classification="confidentiel",
+        ),
+        models.LigneBudgetaire(
+            libelle="Modernisation base navale Nouadhibou", type_budget="investissement",
+            formation_beneficiaire="Base navale Nouadhibou", periode="2026",
+            montant_alloue=70_000_000, montant_consomme=59_000_000, seuil_alerte_pct=80, classification="secret",
+        ),
+    ])
+
     db.commit()
 
 
