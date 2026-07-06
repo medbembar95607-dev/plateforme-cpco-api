@@ -438,6 +438,120 @@ def seed(db: Session) -> None:
         ),
     ])
 
+    col_ba_rh = models.Militaire(
+        matricule="OFF-0012", nom_complet="Col. Ba", grade="Colonel", categorie="officier", armee="terre",
+        formation_affectation="PC COP", date_naissance=datetime(1970, 3, 12), date_entree_service=datetime(1992, 9, 1),
+        classification="confidentiel",
+    )
+    cdt_sy = models.Militaire(
+        matricule="OFF-0045", nom_complet="Cdt Sy", grade="Commandant", categorie="officier", armee="terre",
+        formation_affectation="Compagnie Alpha", date_naissance=datetime(1980, 5, 20), date_entree_service=datetime(2003, 9, 1),
+        classification="confidentiel",
+    )
+    cne_diop = models.Militaire(
+        matricule="OFF-0078", nom_complet="Cne Diop", grade="Capitaine", categorie="officier", armee="terre",
+        formation_affectation="Bataillon 1", date_naissance=datetime(1985, 11, 3), date_entree_service=datetime(2008, 9, 1),
+        classification="confidentiel",
+    )
+    lt_fall = models.Militaire(
+        matricule="OFF-0103", nom_complet="Lt. Fall", grade="Lieutenant", categorie="officier", armee="terre",
+        formation_affectation="Compagnie Alpha", date_naissance=datetime(1992, 2, 14), date_entree_service=datetime(2015, 9, 1),
+        classification="confidentiel",
+    )
+    col_kane = models.Militaire(
+        matricule="OFF-0005", nom_complet="Col. Kane", grade="Colonel", categorie="officier", armee="air",
+        formation_affectation="Base aérienne Nouakchott", date_naissance=datetime(1967, 6, 8), date_entree_service=datetime(1989, 9, 1),
+        classification="confidentiel",
+    )
+    adjc_sow = models.Militaire(
+        matricule="SOF-0231", nom_complet="Adjudant-chef Sow", grade="Adjudant-chef", categorie="sous_officier", armee="terre",
+        formation_affectation="Bataillon 1", date_naissance=datetime(1969, 9, 25), date_entree_service=datetime(1990, 3, 1),
+        classification="confidentiel",
+    )
+    sgc_ndiaye = models.Militaire(
+        matricule="SOF-0344", nom_complet="Sergent-chef Ndiaye", grade="Sergent-chef", categorie="sous_officier", armee="terre",
+        formation_affectation="Compagnie Alpha", date_naissance=datetime(1988, 1, 17), date_entree_service=datetime(2010, 3, 1),
+        classification="confidentiel",
+    )
+    adj_traore = models.Militaire(
+        matricule="SOF-0410", nom_complet="Adjudant Traoré", grade="Adjudant", categorie="sous_officier", armee="air",
+        formation_affectation="Base aérienne Nouakchott", date_naissance=datetime(1975, 7, 30), date_entree_service=datetime(1997, 3, 1),
+        classification="confidentiel",
+    )
+    sgt_camara = models.Militaire(
+        matricule="SOF-0512", nom_complet="Sergent Camara", grade="Sergent", categorie="sous_officier", armee="mer",
+        formation_affectation="Base navale Nouadhibou", date_naissance=datetime(1990, 4, 22), date_entree_service=datetime(2012, 3, 1),
+        classification="confidentiel",
+    )
+    capc_diallo = models.Militaire(
+        matricule="TRP-0781", nom_complet="Caporal-chef Diallo", grade="Caporal-chef", categorie="homme_du_rang", armee="terre",
+        formation_affectation="Compagnie Alpha", date_naissance=datetime(1996, 8, 11), date_entree_service=datetime(2017, 1, 1),
+        classification="diffusion_libre",
+    )
+    sdt_barry = models.Militaire(
+        matricule="TRP-0902", nom_complet="Soldat Barry", grade="Soldat de 1ère classe", categorie="homme_du_rang", armee="terre",
+        formation_affectation="Bataillon 1", date_naissance=datetime(2000, 12, 5), date_entree_service=datetime(2021, 1, 1),
+        classification="diffusion_libre",
+    )
+    cap_sy = models.Militaire(
+        matricule="TRP-0655", nom_complet="Caporal Sy", grade="Caporal", categorie="homme_du_rang", armee="air",
+        formation_affectation="Base aérienne Nouakchott", date_naissance=datetime(1974, 10, 2), date_entree_service=datetime(1996, 1, 1),
+        classification="diffusion_libre",
+    )
+    sdt_wade = models.Militaire(
+        matricule="TRP-1021", nom_complet="Soldat Wade", grade="Soldat de 2ème classe", categorie="homme_du_rang", armee="mer",
+        formation_affectation="Base navale Nouadhibou", date_naissance=datetime(1998, 3, 19), date_entree_service=datetime(2019, 1, 1),
+        classification="diffusion_libre",
+    )
+    db.add_all([
+        col_ba_rh, cdt_sy, cne_diop, lt_fall, col_kane,
+        adjc_sow, sgc_ndiaye, adj_traore, sgt_camara,
+        capc_diallo, sdt_barry, cap_sy, sdt_wade,
+    ])
+    db.flush()
+
+    db.add_all([
+        models.PropositionRH(
+            militaire_id=cne_diop.id, type_proposition="avancement",
+            motif="Ancienneté suffisante et notation excellente sur les deux dernières années.",
+            proposition="Avancement au grade de Commandant", statut="en_cours", classification="confidentiel",
+        ),
+        models.PropositionRH(
+            militaire_id=sgc_ndiaye.id, type_proposition="affectation",
+            motif="Besoin en renfort à la cellule Renseignement suite à l'activité suspecte de la Zone A3.",
+            proposition="Affectation à la cellule Renseignement (RENS)", statut="en_cours", classification="confidentiel",
+        ),
+        models.PropositionRH(
+            militaire_id=lt_fall.id, type_proposition="avancement",
+            motif="Réussite au stage supérieur d'état-major.",
+            proposition="Avancement au grade de Capitaine", statut="validee", classification="confidentiel",
+        ),
+        models.PropositionRH(
+            militaire_id=capc_diallo.id, type_proposition="affectation",
+            motif="Réorganisation interne du Bataillon 1, poste déjà pourvu.",
+            proposition="Affectation au Bataillon 1", statut="rejetee", classification="diffusion_libre",
+        ),
+    ])
+
+    db.add_all([
+        models.BesoinRecrutement(
+            poste="Officier transmetteur", categorie="officier", armee="terre",
+            formation_affectation="CSIC", nombre_postes=2, priorite="elevee", statut="ouvert", classification="confidentiel",
+        ),
+        models.BesoinRecrutement(
+            poste="Mécanicien aéronautique", categorie="sous_officier", armee="air",
+            formation_affectation="Base aérienne Nouakchott", nombre_postes=3, priorite="critique", statut="ouvert", classification="confidentiel",
+        ),
+        models.BesoinRecrutement(
+            poste="Fusilier marin", categorie="homme_du_rang", armee="mer",
+            formation_affectation="Base navale Nouadhibou", nombre_postes=10, priorite="normale", statut="ouvert", classification="diffusion_libre",
+        ),
+        models.BesoinRecrutement(
+            poste="Officier logisticien", categorie="officier", armee="terre",
+            formation_affectation="Dépôt central Nouakchott", nombre_postes=1, priorite="normale", statut="pourvu", classification="confidentiel",
+        ),
+    ])
+
     db.commit()
 
 

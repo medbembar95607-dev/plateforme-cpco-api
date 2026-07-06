@@ -327,3 +327,47 @@ class LigneBudgetaire(Base):
     montant_consomme: Mapped[float] = mapped_column(Float, default=0)
     seuil_alerte_pct: Mapped[float] = mapped_column(Float, default=80)
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+
+# --- RESSOURCES HUMAINES (2026-07-06) ----------------------------------------------
+
+class Militaire(Base):
+    __tablename__ = "militaires"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    matricule: Mapped[str] = mapped_column(String(30))
+    nom_complet: Mapped[str] = mapped_column(String(150))
+    grade: Mapped[str] = mapped_column(String(50))
+    categorie: Mapped[str] = mapped_column(String(20))  # officier, sous_officier, homme_du_rang
+    armee: Mapped[str] = mapped_column(String(20))  # terre, air, mer
+    formation_affectation: Mapped[str] = mapped_column(String(150))
+    date_naissance: Mapped[datetime] = mapped_column(DateTime)
+    date_entree_service: Mapped[datetime] = mapped_column(DateTime)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+
+class PropositionRH(Base):
+    __tablename__ = "propositions_rh"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    militaire_id: Mapped[str] = mapped_column(ForeignKey("militaires.id"))
+    type_proposition: Mapped[str] = mapped_column(String(20))  # affectation, avancement
+    motif: Mapped[str] = mapped_column(Text)
+    proposition: Mapped[str] = mapped_column(String(250))
+    statut: Mapped[str] = mapped_column(String(20), default="en_cours")  # en_cours, validee, rejetee
+    date_creation: Mapped[datetime] = mapped_column(DateTime, default=now)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+
+class BesoinRecrutement(Base):
+    __tablename__ = "besoins_recrutement"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    poste: Mapped[str] = mapped_column(String(150))
+    categorie: Mapped[str] = mapped_column(String(20))  # officier, sous_officier, homme_du_rang
+    armee: Mapped[str] = mapped_column(String(20))
+    formation_affectation: Mapped[str] = mapped_column(String(150))
+    nombre_postes: Mapped[int] = mapped_column(Integer, default=1)
+    priorite: Mapped[str] = mapped_column(String(20), default="normale")  # normale, elevee, critique
+    statut: Mapped[str] = mapped_column(String(20), default="ouvert")  # ouvert, pourvu
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
