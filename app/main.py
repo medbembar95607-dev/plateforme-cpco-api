@@ -10,7 +10,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://medbembar95607-dev.github.io",
-        "https://imaginative-croissant-f46ef5.netlify.app",
+        "https://tbcomd.netlify.app",
     ],
     allow_origin_regex=r"http://localhost:\d+",
     allow_methods=["*"],
