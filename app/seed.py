@@ -180,46 +180,6 @@ def seed(db: Session) -> None:
         ),
     ])
 
-    # Dates calées sur l'instant du seed (pas de dates figées) : le seed tourne à chaque
-    # réveil/redéploiement du service (SQLite éphémère sur le plan gratuit Render), donc des
-    # dates codées en dur finissent toujours par glisser dans le passé et faire disparaître le
-    # rappel de "prochain rendez-vous" sur l'écran Agenda.
-    aujourdhui = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
-    db.add_all([
-        models.RendezVous(
-            titre="Point de situation hebdomadaire", type_rdv="briefing",
-            date_debut=aujourdhui + timedelta(days=-3, hours=8), date_fin=aujourdhui + timedelta(days=-3, hours=9),
-            lieu="PC CPCO — salle de crise", participants="État-major, officiers OPS/RENS/LOG",
-            statut="confirme", classification="confidentiel",
-        ),
-        models.RendezVous(
-            titre="Audience — Gouverneur du Hodh Ech Chargui", type_rdv="audience",
-            date_debut=aujourdhui + timedelta(days=-3, hours=11), date_fin=aujourdhui + timedelta(days=-3, hours=12),
-            lieu="Bureau du Chef d'état-major", participants="Gouverneur, Col. Ba",
-            statut="a_confirmer", classification="confidentiel",
-        ),
-        models.RendezVous(
-            titre="Conseil des ministres — point sécurité", type_rdv="reunion",
-            date_debut=aujourdhui + timedelta(days=-1, hours=9), date_fin=aujourdhui + timedelta(days=-1, hours=11),
-            lieu="Ministère de la Défense", participants="CEMGA, Ministre de la Défense",
-            statut="confirme", classification="secret",
-        ),
-        models.RendezVous(
-            titre="Déplacement — inspection Zone A3", type_rdv="deplacement",
-            date_debut=aujourdhui + timedelta(days=1, hours=6), date_fin=aujourdhui + timedelta(days=1, hours=18),
-            lieu="Zone A3", participants="Col. Ba, escorte Compagnie Alpha",
-            statut="a_confirmer", classification="secret",
-        ),
-        models.RendezVous(
-            titre="Cérémonie de passation — PC Avancé Nord", type_rdv="ceremonie",
-            date_debut=aujourdhui + timedelta(days=-5, hours=10), date_fin=aujourdhui + timedelta(days=-5, hours=11, minutes=30),
-            lieu="Poste Avancé Nord", participants="État-major, unités du secteur Nord",
-            statut="annule", classification="diffusion_libre",
-            notes="Reporté en raison des conditions météo.",
-        ),
-    ])
-
     db.add_all([
         # Armée de Terre
         models.Materiel(
@@ -561,11 +521,60 @@ def seed(db: Session) -> None:
     db.commit()
 
 
+def reseeder_agenda(db: Session) -> None:
+    """Régénère les rendez-vous de démo avec des dates relatives à l'instant présent.
+
+    Contrairement à seed(), tourne à chaque démarrage sans condition d'idempotence sur les
+    autres tables : le disque de la base est persistant sur Render (pas éphémère comme supposé
+    initialement), donc des dates de rendez-vous codées en dur finissent toujours par glisser
+    dans le passé et faire disparaître le rappel de "prochain rendez-vous" sur l'écran Agenda.
+    """
+    db.query(models.RendezVous).delete()
+
+    aujourdhui = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    db.add_all([
+        models.RendezVous(
+            titre="Point de situation hebdomadaire", type_rdv="briefing",
+            date_debut=aujourdhui + timedelta(days=-3, hours=8), date_fin=aujourdhui + timedelta(days=-3, hours=9),
+            lieu="PC CPCO — salle de crise", participants="État-major, officiers OPS/RENS/LOG",
+            statut="confirme", classification="confidentiel",
+        ),
+        models.RendezVous(
+            titre="Audience — Gouverneur du Hodh Ech Chargui", type_rdv="audience",
+            date_debut=aujourdhui + timedelta(days=-3, hours=11), date_fin=aujourdhui + timedelta(days=-3, hours=12),
+            lieu="Bureau du Chef d'état-major", participants="Gouverneur, Col. Ba",
+            statut="a_confirmer", classification="confidentiel",
+        ),
+        models.RendezVous(
+            titre="Conseil des ministres — point sécurité", type_rdv="reunion",
+            date_debut=aujourdhui + timedelta(days=-1, hours=9), date_fin=aujourdhui + timedelta(days=-1, hours=11),
+            lieu="Ministère de la Défense", participants="CEMGA, Ministre de la Défense",
+            statut="confirme", classification="secret",
+        ),
+        models.RendezVous(
+            titre="Déplacement — inspection Zone A3", type_rdv="deplacement",
+            date_debut=aujourdhui + timedelta(days=1, hours=6), date_fin=aujourdhui + timedelta(days=1, hours=18),
+            lieu="Zone A3", participants="Col. Ba, escorte Compagnie Alpha",
+            statut="a_confirmer", classification="secret",
+        ),
+        models.RendezVous(
+            titre="Cérémonie de passation — PC Avancé Nord", type_rdv="ceremonie",
+            date_debut=aujourdhui + timedelta(days=-5, hours=10), date_fin=aujourdhui + timedelta(days=-5, hours=11, minutes=30),
+            lieu="Poste Avancé Nord", participants="État-major, unités du secteur Nord",
+            statut="annule", classification="diffusion_libre",
+            notes="Reporté en raison des conditions météo.",
+        ),
+    ])
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         seed(db)
+        reseeder_agenda(db)
     finally:
         db.close()
 
