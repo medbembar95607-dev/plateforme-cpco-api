@@ -3,7 +3,7 @@
 à l'écran. Idempotent : ne fait rien si des unités existent déjà."""
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -180,34 +180,40 @@ def seed(db: Session) -> None:
         ),
     ])
 
+    # Dates calées sur l'instant du seed (pas de dates figées) : le seed tourne à chaque
+    # réveil/redéploiement du service (SQLite éphémère sur le plan gratuit Render), donc des
+    # dates codées en dur finissent toujours par glisser dans le passé et faire disparaître le
+    # rappel de "prochain rendez-vous" sur l'écran Agenda.
+    aujourdhui = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
     db.add_all([
         models.RendezVous(
             titre="Point de situation hebdomadaire", type_rdv="briefing",
-            date_debut=datetime(2026, 7, 6, 8, 0), date_fin=datetime(2026, 7, 6, 9, 0),
+            date_debut=aujourdhui + timedelta(days=-3, hours=8), date_fin=aujourdhui + timedelta(days=-3, hours=9),
             lieu="PC CPCO — salle de crise", participants="État-major, officiers OPS/RENS/LOG",
             statut="confirme", classification="confidentiel",
         ),
         models.RendezVous(
             titre="Audience — Gouverneur du Hodh Ech Chargui", type_rdv="audience",
-            date_debut=datetime(2026, 7, 6, 11, 0), date_fin=datetime(2026, 7, 6, 12, 0),
+            date_debut=aujourdhui + timedelta(days=-3, hours=11), date_fin=aujourdhui + timedelta(days=-3, hours=12),
             lieu="Bureau du Chef d'état-major", participants="Gouverneur, Col. Ba",
             statut="a_confirmer", classification="confidentiel",
         ),
         models.RendezVous(
             titre="Conseil des ministres — point sécurité", type_rdv="reunion",
-            date_debut=datetime(2026, 7, 8, 9, 0), date_fin=datetime(2026, 7, 8, 11, 0),
+            date_debut=aujourdhui + timedelta(days=-1, hours=9), date_fin=aujourdhui + timedelta(days=-1, hours=11),
             lieu="Ministère de la Défense", participants="CEMGA, Ministre de la Défense",
             statut="confirme", classification="secret",
         ),
         models.RendezVous(
             titre="Déplacement — inspection Zone A3", type_rdv="deplacement",
-            date_debut=datetime(2026, 7, 9, 6, 0), date_fin=datetime(2026, 7, 9, 18, 0),
+            date_debut=aujourdhui + timedelta(days=1, hours=6), date_fin=aujourdhui + timedelta(days=1, hours=18),
             lieu="Zone A3", participants="Col. Ba, escorte Compagnie Alpha",
             statut="a_confirmer", classification="secret",
         ),
         models.RendezVous(
             titre="Cérémonie de passation — PC Avancé Nord", type_rdv="ceremonie",
-            date_debut=datetime(2026, 7, 4, 10, 0), date_fin=datetime(2026, 7, 4, 11, 30),
+            date_debut=aujourdhui + timedelta(days=-5, hours=10), date_fin=aujourdhui + timedelta(days=-5, hours=11, minutes=30),
             lieu="Poste Avancé Nord", participants="État-major, unités du secteur Nord",
             statut="annule", classification="diffusion_libre",
             notes="Reporté en raison des conditions météo.",
