@@ -907,6 +907,149 @@ def reseeder_veille(db: Session) -> None:
     db.commit()
 
 
+def reseeder_execution(db: Session) -> None:
+    """Suivi d'exécution des ordres/instructions par unité, avec délais relatifs à l'instant
+    présent (même raison que reseeder_agenda : sinon tout finit par apparaître "en retard" une
+    fois la date de seed dépassée). Upsert par (reference, unité), même logique de résilience au
+    disque persistant Render que les autres reseeders.
+    """
+    unites = {u.code_unite: u for u in db.query(models.Unit).all()}
+    bat1, alpha, pa_nord, convoi, poste_log, pc = (
+        unites.get("BAT-1"), unites.get("CIE-ALPHA"), unites.get("PA-NORD"),
+        unites.get("CONVOI-LIMA"), unites.get("POSTE-LOG-NORD"), unites.get("PC-CPCO"),
+    )
+    if not all([bat1, alpha, pa_nord, convoi, poste_log, pc]):
+        return  # seed() de base pas encore passé (unités absentes) : rien à faire pour l'instant
+
+    maintenant = datetime.now()
+
+    def j(offset_jours: float, heure: int, minute: int = 0) -> datetime:
+        return (maintenant + timedelta(days=offset_jours)).replace(hour=heure, minute=minute, second=0, microsecond=0)
+
+    suivis_attendus = [
+        models.SuiviExecution(
+            reference="OPORD-2026-014", type_ordre="OPORD", objet="Sécurisation de l'axe nord",
+            instruction="Sécuriser l'axe de progression nord et tenir les checkpoints Bravo et Charlie.",
+            emetteur="Col. Ba, Commandement CPCO", unite_id=bat1.id,
+            date_emission=j(-6, 8), date_limite=j(-4, 18),
+            statut="execute", date_execution=j(-5, 14),
+            compte_rendu="Axe sécurisé, checkpoints Bravo et Charlie tenus, aucune activité hostile constatée.",
+            classification="secret",
+        ),
+        models.SuiviExecution(
+            reference="OPORD-2026-014", type_ordre="OPORD", objet="Sécurisation de l'axe nord — appui",
+            instruction="Appuyer le Bataillon 1 sur le flanc est de l'axe nord.",
+            emetteur="Col. Ba, Commandement CPCO", unite_id=alpha.id,
+            date_emission=j(-6, 8), date_limite=j(-4, 18),
+            statut="en_cours", date_execution=None, compte_rendu=None,
+            classification="secret",
+        ),
+        models.SuiviExecution(
+            reference="FRAGO-2026-031", type_ordre="FRAGO", objet="Ravitaillement prioritaire Convoi",
+            instruction="Organiser un ravitaillement en carburant et munitions dès rétablissement de la liaison.",
+            emetteur="Cdt Sy, Officier opérations", unite_id=convoi.id,
+            date_emission=j(-4, 9, 15), date_limite=j(-1, 17),
+            statut="en_attente", date_execution=None, compte_rendu=None,
+            classification="confidentiel",
+        ),
+        models.SuiviExecution(
+            reference="WARNO-2026-009", type_ordre="WARNO", objet="Renforcement surveillance Zone A3",
+            instruction="Renforcer le dispositif de surveillance sur la Zone A3 suite à confirmation de menace.",
+            emetteur="Cne Diop, Officier renseignement", unite_id=pa_nord.id,
+            date_emission=j(-2, 10), date_limite=j(1, 12),
+            statut="en_cours", date_execution=None, compte_rendu=None,
+            classification="secret",
+        ),
+        models.SuiviExecution(
+            reference="INSTRUCTION-2026-042", type_ordre="INSTRUCTION", objet="Inventaire hebdomadaire des stocks",
+            instruction="Transmettre l'inventaire complet des stocks de la semaine.",
+            emetteur="Cdt Sy, Officier opérations", unite_id=poste_log.id,
+            date_emission=j(-1, 8), date_limite=j(2, 18),
+            statut="en_attente", date_execution=None, compte_rendu=None,
+            classification="diffusion_libre",
+        ),
+        models.SuiviExecution(
+            reference="INSTRUCTION-2026-038", type_ordre="INSTRUCTION", objet="Compte-rendu effectifs mensuel",
+            instruction="Transmettre le compte-rendu des effectifs disponibles pour le mois en cours.",
+            emetteur="Col. Ba, Commandement CPCO", unite_id=bat1.id,
+            date_emission=j(-10, 8), date_limite=j(-8, 18),
+            statut="execute", date_execution=j(-9, 10),
+            compte_rendu="Effectifs transmis : 520 personnels, 4 postes à pourvoir signalés.",
+            classification="confidentiel",
+        ),
+        models.SuiviExecution(
+            reference="FRAGO-2026-028", type_ordre="FRAGO", objet="Reconnaissance itinéraire alternatif Nord",
+            instruction="Reconnaître un itinéraire alternatif pour contourner la Zone A3 en cas de nécessité.",
+            emetteur="Cdt Sy, Officier opérations", unite_id=alpha.id,
+            date_emission=j(-3, 7), date_limite=j(-1, 18),
+            statut="execute", date_execution=j(-1, 16, 30),
+            compte_rendu="Itinéraire alternatif reconnu et validé, praticable pour véhicules légers et poids lourds.",
+            classification="confidentiel",
+        ),
+        models.SuiviExecution(
+            reference="INSTRUCTION-2026-045", type_ordre="INSTRUCTION", objet="Rétablir la liaison radio principale",
+            instruction="Diagnostiquer et rétablir la liaison radio principale avec le PC COP.",
+            emetteur="Col. Ba, Commandement CPCO", unite_id=convoi.id,
+            date_emission=j(-2, 9), date_limite=j(0, 18),
+            statut="en_cours", date_execution=None, compte_rendu=None,
+            classification="confidentiel",
+        ),
+        models.SuiviExecution(
+            reference="INSTRUCTION-2026-040", type_ordre="INSTRUCTION", objet="Préparer le briefing hebdomadaire état-major",
+            instruction="Préparer les éléments de situation pour le briefing hebdomadaire de l'état-major.",
+            emetteur="Col. Ba, Commandement CPCO", unite_id=pc.id,
+            date_emission=j(-1, 8), date_limite=j(3, 9),
+            statut="en_attente", date_execution=None, compte_rendu=None,
+            classification="confidentiel",
+        ),
+        models.SuiviExecution(
+            reference="FRAGO-2026-025", type_ordre="FRAGO", objet="Rapport de reconnaissance Zone A3",
+            instruction="Transmettre un rapport détaillé de reconnaissance sur la Zone A3.",
+            emetteur="Cne Diop, Officier renseignement", unite_id=pa_nord.id,
+            date_emission=j(-5, 8), date_limite=j(-3, 18),
+            statut="execute", date_execution=j(-2, 9),
+            compte_rendu="Rapport transmis avec retard suite à une panne de transmission temporaire. Aucun mouvement hostile confirmé depuis 48h.",
+            classification="secret",
+        ),
+        models.SuiviExecution(
+            reference="WARNO-2026-011", type_ordre="WARNO", objet="Préparation relève Compagnie Alpha",
+            instruction="Préparer la relève de la Compagnie Alpha par une unité fraîche sous 5 jours.",
+            emetteur="Col. Ba, Commandement CPCO", unite_id=bat1.id,
+            date_emission=j(-1, 15), date_limite=j(5, 18),
+            statut="en_attente", date_execution=None, compte_rendu=None,
+            classification="confidentiel",
+        ),
+        models.SuiviExecution(
+            reference="FRAGO-2026-033", type_ordre="FRAGO", objet="Constitution d'un stock d'urgence carburant",
+            instruction="Constituer un stock d'urgence de carburant équivalent à 5 jours d'autonomie.",
+            emetteur="Cdt Sy, Officier opérations", unite_id=poste_log.id,
+            date_emission=j(-7, 8), date_limite=j(-5, 18),
+            statut="execute", date_execution=j(-6, 12),
+            compte_rendu="Stock d'urgence constitué et vérifié, autonomie de 5,5 jours atteinte.",
+            classification="diffusion_libre",
+        ),
+    ]
+
+    existants = {(s.reference, s.unite_id): s for s in db.query(models.SuiviExecution).all()}
+    for attendu in suivis_attendus:
+        cle = (attendu.reference, attendu.unite_id)
+        existant = existants.get(cle)
+        if existant is None:
+            db.add(attendu)
+            continue
+        existant.type_ordre = attendu.type_ordre
+        existant.objet = attendu.objet
+        existant.instruction = attendu.instruction
+        existant.emetteur = attendu.emetteur
+        existant.date_emission = attendu.date_emission
+        existant.date_limite = attendu.date_limite
+        existant.statut = attendu.statut
+        existant.date_execution = attendu.date_execution
+        existant.compte_rendu = attendu.compte_rendu
+        existant.classification = attendu.classification
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
@@ -916,6 +1059,7 @@ def init_db() -> None:
         reseeder_besoins_formation(db)
         reseeder_garnisons(db)
         reseeder_veille(db)
+        reseeder_execution(db)
     finally:
         db.close()
 

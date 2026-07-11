@@ -432,3 +432,29 @@ class SignalStrategique(Base):
     source: Mapped[str] = mapped_column(String(150))
     date_maj: Mapped[datetime] = mapped_column(DateTime, default=now)
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+
+class SuiviExecution(Base):
+    """Suivi d'exécution des ordres et instructions par unité, pour la vue du chef (délai tenu ou
+    dépassé, compte rendu). Table volontairement séparée de orders/order_recipients (qui gèrent le
+    cycle de vie du document lui-même : brouillon/signé/diffusé) : elle couvre aussi les
+    instructions plus informelles qui ne suivent pas ce workflow, et porte la notion de délai
+    (date_limite) absente du modèle Order actuel."""
+
+    __tablename__ = "suivi_execution"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    reference: Mapped[str] = mapped_column(String(50))
+    type_ordre: Mapped[str] = mapped_column(String(20))  # OPORD, FRAGO, WARNO, INSTRUCTION
+    objet: Mapped[str] = mapped_column(String(250))
+    instruction: Mapped[str] = mapped_column(Text)
+    emetteur: Mapped[str] = mapped_column(String(150))
+    unite_id: Mapped[str] = mapped_column(ForeignKey("units.id"))
+    date_emission: Mapped[datetime] = mapped_column(DateTime)
+    date_limite: Mapped[datetime] = mapped_column(DateTime)
+    statut: Mapped[str] = mapped_column(String(20), default="en_attente")  # en_attente, en_cours, execute
+    date_execution: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    compte_rendu: Mapped[str | None] = mapped_column(Text, nullable=True)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+    unite: Mapped["Unit"] = relationship()

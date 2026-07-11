@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import admin, agenda, alerts, budget, courrier, deploiement, incidents, intelligence, logistics, materiel, operations, orders, rh, situation, units, veille
+from .routers import admin, agenda, alerts, budget, courrier, deploiement, execution, incidents, intelligence, logistics, materiel, operations, orders, rh, situation, units, veille
 from .seed import init_db
 
 app = FastAPI(title="Plateforme CPCO — API", version="0.1.0")
@@ -39,6 +39,7 @@ app.include_router(budget.router, prefix="/api")
 app.include_router(rh.router, prefix="/api")
 app.include_router(deploiement.router, prefix="/api")
 app.include_router(veille.router, prefix="/api")
+app.include_router(execution.router, prefix="/api")
 
 
 @app.get("/api/health")
