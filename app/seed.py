@@ -611,15 +611,14 @@ def reseeder_agenda(db: Session) -> None:
 def reseeder_garnisons(db: Session) -> None:
     """Déploiement permanent (carte Déploiement Armée) : une formation niveau bataillon (armée
     de terre ou force spéciale) dans chaque chef-lieu de wilaya, plus les bases aériennes
-    (Nouakchott, Atar, Néma) et bases navales (Nouakchott, Nouadhibou).
+    (Nouakchott, Atar, Néma), bases navales (Nouakchott, Nouadhibou) et postes frontaliers.
 
-    Fonction séparée de seed() (idempotente sur sa propre table, pas sur Unit) pour la même
-    raison que reseeder_besoins_formation : le disque de la base est persistant sur Render.
+    Idempotence par nom (pas par comptage global de la table) : contrairement à reseeder_agenda,
+    cette liste est amenée à grandir au fil des demandes. Un simple "if count() > 0: return"
+    empêcherait tout nouvel ajout de fonctionner après le premier déploiement, puisque le disque
+    de la base est persistant sur Render (pas réinitialisé à chaque redémarrage).
     """
-    if db.query(models.Garnison).count() > 0:
-        return
-
-    db.add_all([
+    garnisons_attendues = [
         # --- Bataillons Armée de Terre / Forces spéciales, un par chef-lieu de wilaya ---
         models.Garnison(
             nom="Bataillon des Forces Spéciales — Néma", type_unite="force_speciale", echelon="bataillon",
@@ -731,8 +730,38 @@ def reseeder_garnisons(db: Session) -> None:
             lon=-16.0150, lat=18.0450, carburant_pct=87, munitions_pct=82, armement_pct=86, vivres_pct=84,
             classification="confidentiel",
         ),
-    ])
-    db.commit()
+        # --- Postes frontaliers Nord-Est (Tiris Zemmour, frontière Algérie/Sahara occidental) ---
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Poste Frontière Sud-Est", type_unite="infanterie", echelon="bataillon",
+            wilaya="Tiris Zemmour", localite="Poste Frontière Sud-Est", armee="terre", effectif=390, statut="disponible",
+            lon=-7.948722, lat=21.285806, carburant_pct=74, munitions_pct=78, armement_pct=81, vivres_pct=76,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Poste Frontière Est", type_unite="infanterie", echelon="bataillon",
+            wilaya="Tiris Zemmour", localite="Poste Frontière Est", armee="terre", effectif=400, statut="disponible",
+            lon=-7.858889, lat=23.509000, carburant_pct=72, munitions_pct=76, armement_pct=80, vivres_pct=74,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Poste Frontière Nord-Est", type_unite="infanterie", echelon="bataillon",
+            wilaya="Tiris Zemmour", localite="Poste Frontière Nord-Est", armee="terre", effectif=380, statut="disponible",
+            lon=-5.829139, lat=25.396778, carburant_pct=70, munitions_pct=75, armement_pct=79, vivres_pct=72,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Bir Moghrein", type_unite="infanterie", echelon="bataillon",
+            wilaya="Tiris Zemmour", localite="Bir Moghrein", armee="terre", effectif=420, statut="disponible",
+            lon=-11.543556, lat=25.213250, carburant_pct=76, munitions_pct=80, armement_pct=83, vivres_pct=78,
+            classification="confidentiel",
+        ),
+    ]
+
+    noms_existants = {nom for (nom,) in db.query(models.Garnison.nom).all()}
+    nouvelles = [g for g in garnisons_attendues if g.nom not in noms_existants]
+    if nouvelles:
+        db.add_all(nouvelles)
+        db.commit()
 
 
 def init_db() -> None:
