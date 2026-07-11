@@ -518,6 +518,19 @@ def seed(db: Session) -> None:
         ),
     ])
 
+    db.commit()
+
+
+def reseeder_besoins_formation(db: Session) -> None:
+    """Ajoute les besoins en formation de démo s'ils n'existent pas encore.
+
+    Fonction séparée de seed() (idempotente sur sa propre table, pas sur Unit) : le disque de la
+    base est persistant sur Render, donc seed() ne rejoue jamais une fois les unités déjà en
+    place, et une nouvelle table ajoutée après coup ne serait sinon jamais peuplée.
+    """
+    if db.query(models.BesoinFormation).count() > 0:
+        return
+
     db.add_all([
         models.BesoinFormation(
             intitule="Stage supérieur d'état-major", categorie="officier", armee="terre",
@@ -544,7 +557,6 @@ def seed(db: Session) -> None:
             formation_affectation="Compagnie Alpha", nombre_places=12, priorite="normale", statut="a_planifier", classification="diffusion_libre",
         ),
     ])
-
     db.commit()
 
 
@@ -602,6 +614,7 @@ def init_db() -> None:
     try:
         seed(db)
         reseeder_agenda(db)
+        reseeder_besoins_formation(db)
     finally:
         db.close()
 
