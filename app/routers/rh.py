@@ -153,3 +153,23 @@ def _serialize_besoin(b: models.BesoinRecrutement) -> dict:
 def list_besoins(db: Session = Depends(get_db)):
     besoins = db.query(models.BesoinRecrutement).order_by(models.BesoinRecrutement.priorite).all()
     return [_serialize_besoin(b) for b in besoins]
+
+
+def _serialize_besoin_formation(b: models.BesoinFormation) -> dict:
+    return {
+        "id": b.id,
+        "intitule": b.intitule,
+        "categorie": b.categorie,
+        "armee": b.armee,
+        "formationAffectation": b.formation_affectation,
+        "nombrePlaces": b.nombre_places,
+        "priorite": b.priorite,
+        "statut": b.statut,
+        "classification": b.classification,
+    }
+
+
+@router.get("/besoins-formation")
+def list_besoins_formation(db: Session = Depends(get_db)):
+    besoins = db.query(models.BesoinFormation).order_by(models.BesoinFormation.priorite).all()
+    return [_serialize_besoin_formation(b) for b in besoins]

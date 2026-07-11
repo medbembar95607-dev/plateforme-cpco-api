@@ -518,6 +518,33 @@ def seed(db: Session) -> None:
         ),
     ])
 
+    db.add_all([
+        models.BesoinFormation(
+            intitule="Stage supérieur d'état-major", categorie="officier", armee="terre",
+            formation_affectation="PC COP", nombre_places=4, priorite="elevee", statut="a_planifier", classification="confidentiel",
+        ),
+        models.BesoinFormation(
+            intitule="Formation cybersécurité niveau 2", categorie="officier", armee="terre",
+            formation_affectation="CSIC", nombre_places=6, priorite="critique", statut="a_planifier", classification="confidentiel",
+        ),
+        models.BesoinFormation(
+            intitule="Perfectionnement maintenance aéronautique", categorie="sous_officier", armee="air",
+            formation_affectation="Base aérienne Nouakchott", nombre_places=8, priorite="elevee", statut="planifie", classification="confidentiel",
+        ),
+        models.BesoinFormation(
+            intitule="Stage de chefferie sous-officiers", categorie="sous_officier", armee="terre",
+            formation_affectation="Bataillon 1", nombre_places=10, priorite="normale", statut="a_planifier", classification="confidentiel",
+        ),
+        models.BesoinFormation(
+            intitule="Formation initiale fusilier marin", categorie="homme_du_rang", armee="mer",
+            formation_affectation="Base navale Nouadhibou", nombre_places=15, priorite="normale", statut="realise", classification="diffusion_libre",
+        ),
+        models.BesoinFormation(
+            intitule="Recyclage conduite et sécurité routière", categorie="homme_du_rang", armee="terre",
+            formation_affectation="Compagnie Alpha", nombre_places=12, priorite="normale", statut="a_planifier", classification="diffusion_libre",
+        ),
+    ])
+
     db.commit()
 
 

@@ -372,3 +372,17 @@ class BesoinRecrutement(Base):
     priorite: Mapped[str] = mapped_column(String(20), default="normale")  # normale, elevee, critique
     statut: Mapped[str] = mapped_column(String(20), default="ouvert")  # ouvert, pourvu
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+
+class BesoinFormation(Base):
+    __tablename__ = "besoins_formation"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    intitule: Mapped[str] = mapped_column(String(150))
+    categorie: Mapped[str] = mapped_column(String(20))  # officier, sous_officier, homme_du_rang
+    armee: Mapped[str] = mapped_column(String(20))
+    formation_affectation: Mapped[str] = mapped_column(String(150))
+    nombre_places: Mapped[int] = mapped_column(Integer, default=1)
+    priorite: Mapped[str] = mapped_column(String(20), default="normale")  # normale, elevee, critique
+    statut: Mapped[str] = mapped_column(String(20), default="a_planifier")  # a_planifier, planifie, realise
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
