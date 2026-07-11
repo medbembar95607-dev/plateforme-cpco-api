@@ -784,6 +784,129 @@ def reseeder_garnisons(db: Session) -> None:
     db.commit()
 
 
+def reseeder_veille(db: Session) -> None:
+    """Veille stratégique : signaux géopolitiques et sécuritaires régionaux de démo.
+
+    Même pattern d'upsert par titre que reseeder_garnisons (disque persistant sur Render) :
+    insère les signaux manquants et resynchronise les autres au redémarrage.
+    """
+    signaux_attendus = [
+        models.SignalStrategique(
+            categorie="securite_regionale",
+            titre="Recrudescence d'activité JNIM/AQMI en zone frontalière malienne",
+            zone="Frontière Mali — Hodh Ech Chargui / Hodh El Gharbi",
+            niveau_risque="critique", tendance="hausse", probabilite_crise_pct=78, horizon="court_terme",
+            analyse="Multiplication des signalements de mouvements armés et d'engins explosifs improvisés côté malien, à proximité immédiate de la frontière. Risque direct de débordement vers le territoire national et de ciblage des postes avancés.",
+            source="Cellule Renseignement CPCO / coopération G5 Sahel", classification="secret",
+        ),
+        models.SignalStrategique(
+            categorie="securite_regionale",
+            titre="Contagion potentielle depuis le triangle Liptako-Gourma",
+            zone="Zone tri-frontalière Mali–Niger–Burkina Faso",
+            niveau_risque="modere", tendance="hausse", probabilite_crise_pct=45, horizon="moyen_terme",
+            analyse="L'intensification des opérations dans le Liptako-Gourma pousse des groupes armés à chercher de nouvelles zones de repli, avec un risque de report progressif de l'activité vers l'Est mauritanien.",
+            source="Analyse open source / partenaires régionaux", classification="confidentiel",
+        ),
+        models.SignalStrategique(
+            categorie="securite_regionale",
+            titre="Afflux de déplacés maliens vers le camp de Mbera",
+            zone="Bassikounou — Hodh Ech Chargui",
+            niveau_risque="eleve", tendance="hausse", probabilite_crise_pct=58, horizon="court_terme",
+            analyse="La pression humanitaire croissante sur le camp de Mbera fragilise le tissu sécuritaire local et complique le contrôle des flux transfrontaliers, avec un risque d'infiltration parmi les populations déplacées.",
+            source="HCR / rapports de terrain CPCO", classification="confidentiel",
+        ),
+        models.SignalStrategique(
+            categorie="diplomatique",
+            titre="Durcissement des contrôles frontaliers avec le Mali",
+            zone="Frontière Mali — ensemble du tracé Est",
+            niveau_risque="eleve", tendance="hausse", probabilite_crise_pct=55, horizon="court_terme",
+            analyse="Multiplication des incidents mineurs lors des patrouilles conjointes et durcissement unilatéral des points de passage côté malien. Risque d'escalade diplomatique en cas d'incident armé.",
+            source="Ministère des Affaires étrangères / DRSM", classification="secret",
+        ),
+        models.SignalStrategique(
+            categorie="diplomatique",
+            titre="Dossier du Sahara occidental et posture au Nord",
+            zone="Frontière Nord — Sahara occidental / Algérie",
+            niveau_risque="modere", tendance="stable", probabilite_crise_pct=25, horizon="long_terme",
+            analyse="Le statu quo relatif sur le dossier du Sahara occidental limite le risque immédiat, mais toute évolution du conflit Maroc-Polisario aurait un impact direct sur la posture de sécurité des postes frontaliers du Tiris Zemmour.",
+            source="Veille diplomatique régionale", classification="confidentiel",
+        ),
+        models.SignalStrategique(
+            categorie="influence_etrangere",
+            titre="Expansion de l'Africa Corps (ex-Wagner) au Mali",
+            zone="Mali — bases arrière proches de la frontière",
+            niveau_risque="eleve", tendance="hausse", probabilite_crise_pct=60, horizon="moyen_terme",
+            analyse="Le renforcement de la présence de l'Africa Corps dans le centre et l'est du Mali modifie l'équilibre régional et pourrait accroître la pression sécuritaire aux abords de la frontière mauritanienne.",
+            source="Analyse open source / renseignement extérieur", classification="secret",
+        ),
+        models.SignalStrategique(
+            categorie="influence_etrangere",
+            titre="Recul des partenariats militaires occidentaux dans la région",
+            zone="Sahel élargi",
+            niveau_risque="faible", tendance="baisse", probabilite_crise_pct=15, horizon="long_terme",
+            analyse="La réduction des exercices conjoints (type Flintlock) et des programmes de coopération occidentaux limite les capacités de formation et de partage de renseignement à moyen terme, sans constituer un risque immédiat.",
+            source="Coopération bilatérale / DRSM", classification="confidentiel",
+        ),
+        models.SignalStrategique(
+            categorie="economique",
+            titre="Volatilité du cours du fer et recettes d'exportation",
+            zone="National — filière SNIM",
+            niveau_risque="modere", tendance="hausse", probabilite_crise_pct=40, horizon="moyen_terme",
+            analyse="Le fer représente une part majeure des recettes d'exportation. Une baisse durable des cours mondiaux fragiliserait le budget de l'État et, indirectement, les capacités d'investissement en matière de défense.",
+            source="Ministère des Finances / veille économique", classification="confidentiel",
+        ),
+        models.SignalStrategique(
+            categorie="economique",
+            titre="Retards de décaissement des programmes de développement",
+            zone="National",
+            niveau_risque="faible", tendance="stable", probabilite_crise_pct=20, horizon="long_terme",
+            analyse="Des retards dans les décaissements des bailleurs internationaux ralentissent des projets d'infrastructure sensibles dans les régions périphériques, avec un risque limité de frustration locale à surveiller.",
+            source="Coopération internationale", classification="diffusion_libre",
+        ),
+        models.SignalStrategique(
+            categorie="climat_ressources",
+            titre="Stress hydrique sur le fleuve Sénégal",
+            zone="Vallée du fleuve Sénégal — Trarza / Brakna / Gorgol",
+            niveau_risque="modere", tendance="hausse", probabilite_crise_pct=35, horizon="moyen_terme",
+            analyse="La baisse du débit du fleuve Sénégal ravive les tensions autour du partage de la ressource en eau avec les pays riverains et fragilise l'agriculture irriguée dans trois wilayas frontalières.",
+            source="OMVS / veille climatique", classification="diffusion_libre",
+        ),
+        models.SignalStrategique(
+            categorie="climat_ressources",
+            titre="Sécheresse et insécurité alimentaire dans les zones pastorales de l'Est",
+            zone="Hodh Ech Chargui / Hodh El Gharbi / Assaba",
+            niveau_risque="eleve", tendance="hausse", probabilite_crise_pct=50, horizon="court_terme",
+            analyse="Le déficit pluviométrique cumulé fragilise les moyens de subsistance pastoraux dans l'Est du pays, un facteur historiquement corrélé à une plus grande porosité aux réseaux armés transfrontaliers.",
+            source="Système d'alerte précoce / PAM", classification="diffusion_libre",
+        ),
+        models.SignalStrategique(
+            categorie="cyber",
+            titre="Recrudescence de tentatives d'intrusion sur les systèmes étatiques",
+            zone="National — infrastructures critiques",
+            niveau_risque="modere", tendance="hausse", probabilite_crise_pct=38, horizon="court_terme",
+            analyse="Augmentation des tentatives d'intrusion détectées sur les systèmes d'information gouvernementaux, cohérente avec l'absence d'agence nationale de cybersécurité pleinement opérationnelle.",
+            source="CSIC / veille cyber", classification="secret",
+        ),
+    ]
+
+    existants = {s.titre: s for s in db.query(models.SignalStrategique).all()}
+    for attendu in signaux_attendus:
+        existant = existants.get(attendu.titre)
+        if existant is None:
+            db.add(attendu)
+            continue
+        existant.categorie = attendu.categorie
+        existant.zone = attendu.zone
+        existant.niveau_risque = attendu.niveau_risque
+        existant.tendance = attendu.tendance
+        existant.probabilite_crise_pct = attendu.probabilite_crise_pct
+        existant.horizon = attendu.horizon
+        existant.analyse = attendu.analyse
+        existant.source = attendu.source
+        existant.classification = attendu.classification
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
@@ -792,6 +915,7 @@ def init_db() -> None:
         reseeder_agenda(db)
         reseeder_besoins_formation(db)
         reseeder_garnisons(db)
+        reseeder_veille(db)
     finally:
         db.close()
 

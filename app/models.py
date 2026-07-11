@@ -411,3 +411,24 @@ class Garnison(Base):
     armement_pct: Mapped[int] = mapped_column(Integer, default=80)
     vivres_pct: Mapped[int] = mapped_column(Integer, default=80)
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+
+class SignalStrategique(Base):
+    """Veille stratégique : indicateurs géopolitiques et sécuritaires régionaux destinés au
+    commandement (menace, diplomatie, économie, climat/ressources, cyber, influence étrangère),
+    avec une probabilité de crise estimée pour aider à prioriser la surveillance."""
+
+    __tablename__ = "signaux_strategiques"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    categorie: Mapped[str] = mapped_column(String(30))  # securite_regionale, diplomatique, economique, climat_ressources, cyber, influence_etrangere
+    titre: Mapped[str] = mapped_column(String(200))
+    zone: Mapped[str] = mapped_column(String(150))
+    niveau_risque: Mapped[str] = mapped_column(String(20))  # faible, modere, eleve, critique
+    tendance: Mapped[str] = mapped_column(String(20))  # hausse, stable, baisse
+    probabilite_crise_pct: Mapped[int] = mapped_column(Integer, default=0)
+    horizon: Mapped[str] = mapped_column(String(20))  # court_terme, moyen_terme, long_terme
+    analyse: Mapped[str] = mapped_column(Text)
+    source: Mapped[str] = mapped_column(String(150))
+    date_maj: Mapped[datetime] = mapped_column(DateTime, default=now)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
