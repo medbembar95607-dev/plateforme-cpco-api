@@ -386,3 +386,28 @@ class BesoinFormation(Base):
     priorite: Mapped[str] = mapped_column(String(20), default="normale")  # normale, elevee, critique
     statut: Mapped[str] = mapped_column(String(20), default="a_planifier")  # a_planifier, planifie, realise
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+
+
+class Garnison(Base):
+    """Déploiement permanent des formations sur le territoire (carte Déploiement Armée),
+    distinct des unités de la Vue COP (units/unit_positions) qui suivent la situation
+    tactique en cours. Position fixe, pas d'historique de déplacement."""
+
+    __tablename__ = "garnisons"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    nom: Mapped[str] = mapped_column(String(150))
+    type_unite: Mapped[str] = mapped_column(String(50))  # infanterie, force_speciale, aerien, marine
+    echelon: Mapped[str] = mapped_column(String(30))  # bataillon, base
+    wilaya: Mapped[str] = mapped_column(String(100))
+    localite: Mapped[str] = mapped_column(String(100))
+    armee: Mapped[str] = mapped_column(String(20))  # terre, air, mer
+    effectif: Mapped[int] = mapped_column(Integer, default=0)
+    statut: Mapped[str] = mapped_column(String(40), default="disponible")
+    lon: Mapped[float] = mapped_column(Float)
+    lat: Mapped[float] = mapped_column(Float)
+    carburant_pct: Mapped[int] = mapped_column(Integer, default=80)
+    munitions_pct: Mapped[int] = mapped_column(Integer, default=80)
+    armement_pct: Mapped[int] = mapped_column(Integer, default=80)
+    vivres_pct: Mapped[int] = mapped_column(Integer, default=80)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")

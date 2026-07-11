@@ -608,6 +608,133 @@ def reseeder_agenda(db: Session) -> None:
     db.commit()
 
 
+def reseeder_garnisons(db: Session) -> None:
+    """Déploiement permanent (carte Déploiement Armée) : une formation niveau bataillon (armée
+    de terre ou force spéciale) dans chaque chef-lieu de wilaya, plus les bases aériennes
+    (Nouakchott, Atar, Néma) et bases navales (Nouakchott, Nouadhibou).
+
+    Fonction séparée de seed() (idempotente sur sa propre table, pas sur Unit) pour la même
+    raison que reseeder_besoins_formation : le disque de la base est persistant sur Render.
+    """
+    if db.query(models.Garnison).count() > 0:
+        return
+
+    db.add_all([
+        # --- Bataillons Armée de Terre / Forces spéciales, un par chef-lieu de wilaya ---
+        models.Garnison(
+            nom="Bataillon des Forces Spéciales — Néma", type_unite="force_speciale", echelon="bataillon",
+            wilaya="Hodh Ech Chargui", localite="Néma", armee="terre", effectif=420, statut="disponible",
+            lon=-7.2700, lat=16.6000, carburant_pct=82, munitions_pct=88, armement_pct=90, vivres_pct=85,
+            classification="secret",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Aïoun el Atrouss", type_unite="infanterie", echelon="bataillon",
+            wilaya="Hodh El Gharbi", localite="Aïoun el Atrouss", armee="terre", effectif=480, statut="disponible",
+            lon=-9.6165, lat=16.6650, carburant_pct=76, munitions_pct=80, armement_pct=85, vivres_pct=79,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Kiffa", type_unite="infanterie", echelon="bataillon",
+            wilaya="Assaba", localite="Kiffa", armee="terre", effectif=510, statut="disponible",
+            lon=-11.4000, lat=16.6167, carburant_pct=88, munitions_pct=83, armement_pct=87, vivres_pct=90,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Kaédi", type_unite="infanterie", echelon="bataillon",
+            wilaya="Gorgol", localite="Kaédi", armee="terre", effectif=460, statut="disponible",
+            lon=-13.5050, lat=16.1500, carburant_pct=71, munitions_pct=75, armement_pct=80, vivres_pct=74,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Aleg", type_unite="infanterie", echelon="bataillon",
+            wilaya="Brakna", localite="Aleg", armee="terre", effectif=440, statut="disponible",
+            lon=-13.9167, lat=17.0500, carburant_pct=80, munitions_pct=78, armement_pct=82, vivres_pct=81,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Rosso", type_unite="infanterie", echelon="bataillon",
+            wilaya="Trarza", localite="Rosso", armee="terre", effectif=500, statut="communication_degradee",
+            lon=-15.8058, lat=16.5136, carburant_pct=65, munitions_pct=70, armement_pct=76, vivres_pct=68,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Atar", type_unite="infanterie", echelon="bataillon",
+            wilaya="Adrar", localite="Atar", armee="terre", effectif=470, statut="disponible",
+            lon=-13.0700, lat=20.5000, carburant_pct=84, munitions_pct=86, armement_pct=88, vivres_pct=83,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Nouadhibou", type_unite="infanterie", echelon="bataillon",
+            wilaya="Dakhlet Nouadhibou", localite="Nouadhibou", armee="terre", effectif=490, statut="disponible",
+            lon=-17.0550, lat=20.9150, carburant_pct=79, munitions_pct=81, armement_pct=84, vivres_pct=80,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Tidjikja", type_unite="infanterie", echelon="bataillon",
+            wilaya="Tagant", localite="Tidjikja", armee="terre", effectif=380, statut="disponible",
+            lon=-11.4260, lat=18.5550, carburant_pct=73, munitions_pct=77, armement_pct=79, vivres_pct=75,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon des Forces Spéciales — Sélibaby", type_unite="force_speciale", echelon="bataillon",
+            wilaya="Guidimaka", localite="Sélibaby", armee="terre", effectif=400, statut="en_mission",
+            lon=-12.1841, lat=15.1706, carburant_pct=68, munitions_pct=85, armement_pct=91, vivres_pct=72,
+            classification="secret",
+        ),
+        models.Garnison(
+            nom="Bataillon des Forces Spéciales — Zouérat", type_unite="force_speciale", echelon="bataillon",
+            wilaya="Tiris Zemmour", localite="Zouérat", armee="terre", effectif=410, statut="disponible",
+            lon=-12.4672, lat=22.7354, carburant_pct=77, munitions_pct=84, armement_pct=89, vivres_pct=78,
+            classification="secret",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Akjoujt", type_unite="infanterie", echelon="bataillon",
+            wilaya="Inchiri", localite="Akjoujt", armee="terre", effectif=360, statut="disponible",
+            lon=-14.3800, lat=19.7461, carburant_pct=81, munitions_pct=79, armement_pct=83, vivres_pct=80,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Bataillon d'Infanterie — Garde de Nouakchott", type_unite="infanterie", echelon="bataillon",
+            wilaya="Nouakchott", localite="Nouakchott", armee="terre", effectif=580, statut="disponible",
+            lon=-15.9785, lat=18.0858, carburant_pct=90, munitions_pct=92, armement_pct=93, vivres_pct=91,
+            classification="confidentiel",
+        ),
+        # --- Bases aériennes : Nouakchott, Atar, Néma ---
+        models.Garnison(
+            nom="Base Aérienne — Nouakchott", type_unite="aerien", echelon="base",
+            wilaya="Nouakchott", localite="Nouakchott", armee="air", effectif=280, statut="disponible",
+            lon=-15.9450, lat=18.1050, carburant_pct=85, munitions_pct=80, armement_pct=87, vivres_pct=82,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Base Aérienne — Atar", type_unite="aerien", echelon="base",
+            wilaya="Adrar", localite="Atar", armee="air", effectif=190, statut="disponible",
+            lon=-13.0250, lat=20.5350, carburant_pct=78, munitions_pct=74, armement_pct=80, vivres_pct=76,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Base Aérienne — Néma", type_unite="aerien", echelon="base",
+            wilaya="Hodh Ech Chargui", localite="Néma", armee="air", effectif=160, statut="disponible",
+            lon=-7.2350, lat=16.6300, carburant_pct=72, munitions_pct=70, armement_pct=75, vivres_pct=71,
+            classification="confidentiel",
+        ),
+        # --- Bases navales : Nouadhibou, Nouakchott ---
+        models.Garnison(
+            nom="Base Navale — Nouadhibou", type_unite="marine", echelon="base",
+            wilaya="Dakhlet Nouadhibou", localite="Nouadhibou", armee="mer", effectif=320, statut="disponible",
+            lon=-17.0150, lat=20.9450, carburant_pct=83, munitions_pct=79, armement_pct=85, vivres_pct=81,
+            classification="confidentiel",
+        ),
+        models.Garnison(
+            nom="Base Navale — Nouakchott", type_unite="marine", echelon="base",
+            wilaya="Nouakchott", localite="Nouakchott", armee="mer", effectif=260, statut="disponible",
+            lon=-16.0150, lat=18.0450, carburant_pct=87, munitions_pct=82, armement_pct=86, vivres_pct=84,
+            classification="confidentiel",
+        ),
+    ])
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
@@ -615,6 +742,7 @@ def init_db() -> None:
         seed(db)
         reseeder_agenda(db)
         reseeder_besoins_formation(db)
+        reseeder_garnisons(db)
     finally:
         db.close()
 
