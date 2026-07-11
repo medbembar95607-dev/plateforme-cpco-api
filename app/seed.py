@@ -746,7 +746,7 @@ def reseeder_garnisons(db: Session) -> None:
         models.Garnison(
             nom="Bataillon d'Infanterie — Poste Frontière Nord-Est", type_unite="infanterie", echelon="bataillon",
             wilaya="Tiris Zemmour", localite="Poste Frontière Nord-Est", armee="terre", effectif=380, statut="disponible",
-            lon=-5.829139, lat=25.396778, carburant_pct=70, munitions_pct=75, armement_pct=79, vivres_pct=72,
+            lon=-6.762083, lat=25.352583, carburant_pct=70, munitions_pct=75, armement_pct=79, vivres_pct=72,
             classification="confidentiel",
         ),
         models.Garnison(
@@ -757,11 +757,31 @@ def reseeder_garnisons(db: Session) -> None:
         ),
     ]
 
-    noms_existants = {nom for (nom,) in db.query(models.Garnison.nom).all()}
-    nouvelles = [g for g in garnisons_attendues if g.nom not in noms_existants]
-    if nouvelles:
-        db.add_all(nouvelles)
-        db.commit()
+    # Upsert par nom : insère les formations manquantes et resynchronise les autres champs
+    # (position, effectif, statut...) de celles qui existent déjà, pour que les ajustements faits
+    # ici (ex. repositionnement d'un poste) s'appliquent aussi au redémarrage suivant, pas
+    # seulement les toutes nouvelles formations.
+    existantes = {g.nom: g for g in db.query(models.Garnison).all()}
+    for attendue in garnisons_attendues:
+        existante = existantes.get(attendue.nom)
+        if existante is None:
+            db.add(attendue)
+            continue
+        existante.type_unite = attendue.type_unite
+        existante.echelon = attendue.echelon
+        existante.wilaya = attendue.wilaya
+        existante.localite = attendue.localite
+        existante.armee = attendue.armee
+        existante.effectif = attendue.effectif
+        existante.statut = attendue.statut
+        existante.lon = attendue.lon
+        existante.lat = attendue.lat
+        existante.carburant_pct = attendue.carburant_pct
+        existante.munitions_pct = attendue.munitions_pct
+        existante.armement_pct = attendue.armement_pct
+        existante.vivres_pct = attendue.vivres_pct
+        existante.classification = attendue.classification
+    db.commit()
 
 
 def init_db() -> None:
