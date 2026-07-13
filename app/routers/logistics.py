@@ -36,6 +36,8 @@ def list_logistics(db: Session = Depends(get_db)):
         vivres = valeurs.get("vivres", 0)
         maintenance = valeurs.get("maintenance", 0)
         armement = valeurs.get("armement", 0)
+        sante = valeurs.get("sante", 0)
+        vehicule = valeurs.get("vehicule", 0)
 
         seuil_carburant = thresholds.get("carburant", 40)
         seuil_vivres = thresholds.get("vivres", 30)
@@ -58,6 +60,8 @@ def list_logistics(db: Session = Depends(get_db)):
                 "vivresPct": vivres,
                 "maintenancePct": maintenance,
                 "armementPct": armement,
+                "santePct": sante,
+                "vehiculePct": vehicule,
                 "alerte": alerte,
             }
         )

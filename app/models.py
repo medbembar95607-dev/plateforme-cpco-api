@@ -410,6 +410,8 @@ class Garnison(Base):
     munitions_pct: Mapped[int] = mapped_column(Integer, default=80)
     armement_pct: Mapped[int] = mapped_column(Integer, default=80)
     vivres_pct: Mapped[int] = mapped_column(Integer, default=80)
+    sante_pct: Mapped[int] = mapped_column(Integer, default=80)
+    vehicule_pct: Mapped[int] = mapped_column(Integer, default=80)
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
 
 

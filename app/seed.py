@@ -5,10 +5,30 @@
 import json
 from datetime import datetime, timedelta
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from . import models
 from .database import Base, SessionLocal, engine
+
+
+def migrer_colonnes_manquantes() -> None:
+    """Base.metadata.create_all ne crée que les tables absentes, pas les colonnes ajoutées à une
+    table existante. Le disque étant persistant sur Render, une colonne ajoutée au modèle après
+    coup doit être migrée explicitement, sinon l'ORM interroge une colonne qui n'existe pas."""
+    colonnes_a_ajouter = {
+        "garnisons": [
+            ("sante_pct", "INTEGER DEFAULT 80"),
+            ("vehicule_pct", "INTEGER DEFAULT 80"),
+        ],
+    }
+    with engine.connect() as conn:
+        for table, colonnes in colonnes_a_ajouter.items():
+            existantes = {row[1] for row in conn.execute(text(f"PRAGMA table_info({table})"))}
+            for nom_colonne, definition_sql in colonnes:
+                if nom_colonne not in existantes:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {nom_colonne} {definition_sql}"))
+        conn.commit()
 
 
 def seed(db: Session) -> None:
@@ -623,136 +643,136 @@ def reseeder_garnisons(db: Session) -> None:
         models.Garnison(
             nom="Bataillon des Forces Spéciales — Néma", type_unite="force_speciale", echelon="bataillon",
             wilaya="Hodh Ech Chargui", localite="Néma", armee="terre", effectif=420, statut="disponible",
-            lon=-7.2700, lat=16.6000, carburant_pct=82, munitions_pct=88, armement_pct=90, vivres_pct=85,
+            lon=-7.2700, lat=16.6000, carburant_pct=82, munitions_pct=88, armement_pct=90, vivres_pct=85, sante_pct=88, vehicule_pct=85,
             classification="secret",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Aïoun el Atrouss", type_unite="infanterie", echelon="bataillon",
             wilaya="Hodh El Gharbi", localite="Aïoun el Atrouss", armee="terre", effectif=480, statut="disponible",
-            lon=-9.6165, lat=16.6650, carburant_pct=76, munitions_pct=80, armement_pct=85, vivres_pct=79,
+            lon=-9.6165, lat=16.6650, carburant_pct=76, munitions_pct=80, armement_pct=85, vivres_pct=79, sante_pct=82, vehicule_pct=78,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Kiffa", type_unite="infanterie", echelon="bataillon",
             wilaya="Assaba", localite="Kiffa", armee="terre", effectif=510, statut="disponible",
-            lon=-11.4000, lat=16.6167, carburant_pct=88, munitions_pct=83, armement_pct=87, vivres_pct=90,
+            lon=-11.4000, lat=16.6167, carburant_pct=88, munitions_pct=83, armement_pct=87, vivres_pct=90, sante_pct=88, vehicule_pct=86,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Kaédi", type_unite="infanterie", echelon="bataillon",
             wilaya="Gorgol", localite="Kaédi", armee="terre", effectif=460, statut="disponible",
-            lon=-13.5050, lat=16.1500, carburant_pct=71, munitions_pct=75, armement_pct=80, vivres_pct=74,
+            lon=-13.5050, lat=16.1500, carburant_pct=71, munitions_pct=75, armement_pct=80, vivres_pct=74, sante_pct=77, vehicule_pct=73,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Aleg", type_unite="infanterie", echelon="bataillon",
             wilaya="Brakna", localite="Aleg", armee="terre", effectif=440, statut="disponible",
-            lon=-13.9167, lat=17.0500, carburant_pct=80, munitions_pct=78, armement_pct=82, vivres_pct=81,
+            lon=-13.9167, lat=17.0500, carburant_pct=80, munitions_pct=78, armement_pct=82, vivres_pct=81, sante_pct=82, vehicule_pct=79,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Rosso", type_unite="infanterie", echelon="bataillon",
             wilaya="Trarza", localite="Rosso", armee="terre", effectif=500, statut="communication_degradee",
-            lon=-15.8058, lat=16.5136, carburant_pct=65, munitions_pct=70, armement_pct=76, vivres_pct=68,
+            lon=-15.8058, lat=16.5136, carburant_pct=65, munitions_pct=70, armement_pct=76, vivres_pct=68, sante_pct=72, vehicule_pct=68,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Atar", type_unite="infanterie", echelon="bataillon",
             wilaya="Adrar", localite="Atar", armee="terre", effectif=470, statut="disponible",
-            lon=-13.0700, lat=20.5000, carburant_pct=84, munitions_pct=86, armement_pct=88, vivres_pct=83,
+            lon=-13.0700, lat=20.5000, carburant_pct=84, munitions_pct=86, armement_pct=88, vivres_pct=83, sante_pct=86, vehicule_pct=85,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Nouadhibou", type_unite="infanterie", echelon="bataillon",
             wilaya="Dakhlet Nouadhibou", localite="Nouadhibou", armee="terre", effectif=490, statut="disponible",
-            lon=-17.0550, lat=20.9150, carburant_pct=79, munitions_pct=81, armement_pct=84, vivres_pct=80,
+            lon=-17.0550, lat=20.9150, carburant_pct=79, munitions_pct=81, armement_pct=84, vivres_pct=80, sante_pct=82, vehicule_pct=80,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Tidjikja", type_unite="infanterie", echelon="bataillon",
             wilaya="Tagant", localite="Tidjikja", armee="terre", effectif=380, statut="disponible",
-            lon=-11.4260, lat=18.5550, carburant_pct=73, munitions_pct=77, armement_pct=79, vivres_pct=75,
+            lon=-11.4260, lat=18.5550, carburant_pct=73, munitions_pct=77, armement_pct=79, vivres_pct=75, sante_pct=77, vehicule_pct=75,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon des Forces Spéciales — Sélibaby", type_unite="force_speciale", echelon="bataillon",
             wilaya="Guidimaka", localite="Sélibaby", armee="terre", effectif=400, statut="en_mission",
-            lon=-12.1841, lat=15.1706, carburant_pct=68, munitions_pct=85, armement_pct=91, vivres_pct=72,
+            lon=-12.1841, lat=15.1706, carburant_pct=68, munitions_pct=85, armement_pct=91, vivres_pct=72, sante_pct=82, vehicule_pct=76,
             classification="secret",
         ),
         models.Garnison(
             nom="Bataillon des Forces Spéciales — Zouérat", type_unite="force_speciale", echelon="bataillon",
             wilaya="Tiris Zemmour", localite="Zouérat", armee="terre", effectif=410, statut="disponible",
-            lon=-12.4672, lat=22.7354, carburant_pct=77, munitions_pct=84, armement_pct=89, vivres_pct=78,
+            lon=-12.4672, lat=22.7354, carburant_pct=77, munitions_pct=84, armement_pct=89, vivres_pct=78, sante_pct=84, vehicule_pct=80,
             classification="secret",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Akjoujt", type_unite="infanterie", echelon="bataillon",
             wilaya="Inchiri", localite="Akjoujt", armee="terre", effectif=360, statut="disponible",
-            lon=-14.3800, lat=19.7461, carburant_pct=81, munitions_pct=79, armement_pct=83, vivres_pct=80,
+            lon=-14.3800, lat=19.7461, carburant_pct=81, munitions_pct=79, armement_pct=83, vivres_pct=80, sante_pct=82, vehicule_pct=80,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Garde de Nouakchott", type_unite="infanterie", echelon="bataillon",
             wilaya="Nouakchott", localite="Nouakchott", armee="terre", effectif=580, statut="disponible",
-            lon=-15.9785, lat=18.0858, carburant_pct=90, munitions_pct=92, armement_pct=93, vivres_pct=91,
+            lon=-15.9785, lat=18.0858, carburant_pct=90, munitions_pct=92, armement_pct=93, vivres_pct=91, sante_pct=92, vehicule_pct=91,
             classification="confidentiel",
         ),
         # --- Bases aériennes : Nouakchott, Atar, Néma ---
         models.Garnison(
             nom="Base Aérienne — Nouakchott", type_unite="aerien", echelon="base",
             wilaya="Nouakchott", localite="Nouakchott", armee="air", effectif=280, statut="disponible",
-            lon=-15.9450, lat=18.1050, carburant_pct=85, munitions_pct=80, armement_pct=87, vivres_pct=82,
+            lon=-15.9450, lat=18.1050, carburant_pct=85, munitions_pct=80, armement_pct=87, vivres_pct=82, sante_pct=84, vehicule_pct=82,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Base Aérienne — Atar", type_unite="aerien", echelon="base",
             wilaya="Adrar", localite="Atar", armee="air", effectif=190, statut="disponible",
-            lon=-13.0250, lat=20.5350, carburant_pct=78, munitions_pct=74, armement_pct=80, vivres_pct=76,
+            lon=-13.0250, lat=20.5350, carburant_pct=78, munitions_pct=74, armement_pct=80, vivres_pct=76, sante_pct=78, vehicule_pct=76,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Base Aérienne — Néma", type_unite="aerien", echelon="base",
             wilaya="Hodh Ech Chargui", localite="Néma", armee="air", effectif=160, statut="disponible",
-            lon=-7.2350, lat=16.6300, carburant_pct=72, munitions_pct=70, armement_pct=75, vivres_pct=71,
+            lon=-7.2350, lat=16.6300, carburant_pct=72, munitions_pct=70, armement_pct=75, vivres_pct=71, sante_pct=73, vehicule_pct=71,
             classification="confidentiel",
         ),
         # --- Bases navales : Nouadhibou, Nouakchott ---
         models.Garnison(
             nom="Base Navale — Nouadhibou", type_unite="marine", echelon="base",
             wilaya="Dakhlet Nouadhibou", localite="Nouadhibou", armee="mer", effectif=320, statut="disponible",
-            lon=-17.0150, lat=20.9450, carburant_pct=83, munitions_pct=79, armement_pct=85, vivres_pct=81,
+            lon=-17.0150, lat=20.9450, carburant_pct=83, munitions_pct=79, armement_pct=85, vivres_pct=81, sante_pct=83, vehicule_pct=81,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Base Navale — Nouakchott", type_unite="marine", echelon="base",
             wilaya="Nouakchott", localite="Nouakchott", armee="mer", effectif=260, statut="disponible",
-            lon=-16.0150, lat=18.0450, carburant_pct=87, munitions_pct=82, armement_pct=86, vivres_pct=84,
+            lon=-16.0150, lat=18.0450, carburant_pct=87, munitions_pct=82, armement_pct=86, vivres_pct=84, sante_pct=85, vehicule_pct=84,
             classification="confidentiel",
         ),
         # --- Postes frontaliers Nord-Est (Tiris Zemmour, frontière Algérie/Sahara occidental) ---
         models.Garnison(
             nom="Bataillon d'Infanterie — Poste Frontière Sud-Est", type_unite="infanterie", echelon="bataillon",
             wilaya="Tiris Zemmour", localite="Poste Frontière Sud-Est", armee="terre", effectif=390, statut="disponible",
-            lon=-7.948722, lat=21.285806, carburant_pct=74, munitions_pct=78, armement_pct=81, vivres_pct=76,
+            lon=-7.948722, lat=21.285806, carburant_pct=74, munitions_pct=78, armement_pct=81, vivres_pct=76, sante_pct=78, vehicule_pct=76,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Poste Frontière Est", type_unite="infanterie", echelon="bataillon",
             wilaya="Tiris Zemmour", localite="Poste Frontière Est", armee="terre", effectif=400, statut="disponible",
-            lon=-7.858889, lat=23.509000, carburant_pct=72, munitions_pct=76, armement_pct=80, vivres_pct=74,
+            lon=-7.858889, lat=23.509000, carburant_pct=72, munitions_pct=76, armement_pct=80, vivres_pct=74, sante_pct=77, vehicule_pct=74,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Poste Frontière Nord-Est", type_unite="infanterie", echelon="bataillon",
             wilaya="Tiris Zemmour", localite="Poste Frontière Nord-Est", armee="terre", effectif=380, statut="disponible",
-            lon=-6.762083, lat=25.352583, carburant_pct=70, munitions_pct=75, armement_pct=79, vivres_pct=72,
+            lon=-6.762083, lat=25.352583, carburant_pct=70, munitions_pct=75, armement_pct=79, vivres_pct=72, sante_pct=76, vehicule_pct=72,
             classification="confidentiel",
         ),
         models.Garnison(
             nom="Bataillon d'Infanterie — Bir Moghrein", type_unite="infanterie", echelon="bataillon",
             wilaya="Tiris Zemmour", localite="Bir Moghrein", armee="terre", effectif=420, statut="disponible",
-            lon=-11.543556, lat=25.213250, carburant_pct=76, munitions_pct=80, armement_pct=83, vivres_pct=78,
+            lon=-11.543556, lat=25.213250, carburant_pct=76, munitions_pct=80, armement_pct=83, vivres_pct=78, sante_pct=80, vehicule_pct=78,
             classification="confidentiel",
         ),
     ]
@@ -780,6 +800,8 @@ def reseeder_garnisons(db: Session) -> None:
         existante.munitions_pct = attendue.munitions_pct
         existante.armement_pct = attendue.armement_pct
         existante.vivres_pct = attendue.vivres_pct
+        existante.sante_pct = attendue.sante_pct
+        existante.vehicule_pct = attendue.vehicule_pct
         existante.classification = attendue.classification
     db.commit()
 
@@ -1050,8 +1072,36 @@ def reseeder_execution(db: Session) -> None:
     db.commit()
 
 
+def reseeder_logistique_etendue(db: Session) -> None:
+    """Ajoute les domaines Santé et Véhicules (mobilité) aux unités qui ont déjà un suivi
+    logistique, sans rejouer tout `seed()` (idempotent par unité + type_stock, pas par comptage
+    global, pour la même raison que les autres reseeders)."""
+    unites = {u.code_unite: u for u in db.query(models.Unit).all()}
+    valeurs_par_unite = {
+        "BAT-1": {"sante": 85, "vehicule": 88},
+        "CIE-ALPHA": {"sante": 60, "vehicule": 50},
+        "CONVOI-LIMA": {"sante": 45, "vehicule": 35},
+    }
+    for code_unite, valeurs in valeurs_par_unite.items():
+        unite = unites.get(code_unite)
+        if unite is None:
+            continue
+        types_existants = {
+            s.type_stock for s in db.query(models.Stock).filter(models.Stock.unit_id == unite.id).all()
+        }
+        for type_stock, pct in valeurs.items():
+            if type_stock in types_existants:
+                continue
+            stock = models.Stock(unit_id=unite.id, type_stock=type_stock)
+            db.add(stock)
+            db.flush()
+            db.add(models.StockLevel(stock_id=stock.id, pct=pct))
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
+    migrer_colonnes_manquantes()
     db = SessionLocal()
     try:
         seed(db)
@@ -1060,6 +1110,7 @@ def init_db() -> None:
         reseeder_garnisons(db)
         reseeder_veille(db)
         reseeder_execution(db)
+        reseeder_logistique_etendue(db)
     finally:
         db.close()
 

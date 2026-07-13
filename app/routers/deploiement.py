@@ -24,6 +24,8 @@ def _serialize(g: models.Garnison) -> dict:
         "munitionsPct": g.munitions_pct,
         "armementPct": g.armement_pct,
         "vivresPct": g.vivres_pct,
+        "santePct": g.sante_pct,
+        "vehiculePct": g.vehicule_pct,
         "classification": g.classification,
     }
 
