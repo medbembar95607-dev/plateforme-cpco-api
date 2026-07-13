@@ -1073,14 +1073,21 @@ def reseeder_execution(db: Session) -> None:
 
 
 def reseeder_logistique_etendue(db: Session) -> None:
-    """Ajoute les domaines Santé et Véhicules (mobilité) aux unités qui ont déjà un suivi
-    logistique, sans rejouer tout `seed()` (idempotent par unité + type_stock, pas par comptage
-    global, pour la même raison que les autres reseeders)."""
+    """Complète le suivi logistique de toutes les unités (idempotent par unité + type_stock, pas
+    par comptage global, pour la même raison que les autres reseeders) :
+    - BAT-1, CIE-ALPHA, CONVOI-LIMA avaient déjà carburant/munitions/vivres/maintenance/armement
+      (seed() d'origine) : on complète juste Santé et Véhicules.
+    - PC-CPCO, PA-NORD, POSTE-LOG-NORD n'avaient encore aucun suivi logistique : on les peuple
+      entièrement, pour qu'aucune unité n'affiche plus de tirets sur l'écran Unités Engagées.
+    """
     unites = {u.code_unite: u for u in db.query(models.Unit).all()}
     valeurs_par_unite = {
         "BAT-1": {"sante": 85, "vehicule": 88},
         "CIE-ALPHA": {"sante": 60, "vehicule": 50},
         "CONVOI-LIMA": {"sante": 45, "vehicule": 35},
+        "PC-CPCO": {"carburant": 88, "munitions": 90, "vivres": 85, "maintenance": 80, "armement": 92, "sante": 90, "vehicule": 85},
+        "PA-NORD": {"carburant": 70, "munitions": 75, "vivres": 68, "maintenance": 65, "armement": 78, "sante": 72, "vehicule": 66},
+        "POSTE-LOG-NORD": {"carburant": 82, "munitions": 60, "vivres": 88, "maintenance": 75, "armement": 65, "sante": 80, "vehicule": 78},
     }
     for code_unite, valeurs in valeurs_par_unite.items():
         unite = unites.get(code_unite)
