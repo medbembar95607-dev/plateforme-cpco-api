@@ -1,15 +1,15 @@
 # Plateforme CPCO — API
 
-Backend FastAPI + SQLAlchemy pour la Plateforme CPCO. Sert de source de données à [`../plateforme-cpco-app/`](../plateforme-cpco-app/) (React).
+Backend FastAPI + SQLAlchemy pour la Plateforme CPCO. Sert de source de données à [`../plateforme-commandement-app/`](../plateforme-commandement-app/) (React).
 
-Le cadrage complet (modèle de données, décisions d'architecture) vit dans [`../plateforme-cpco/`](../plateforme-cpco/). Ce README couvre uniquement le code.
+Le cadrage complet (modèle de données, décisions d'architecture) vit dans [`../plateforme-commandement/`](../plateforme-commandement/). Ce README couvre uniquement le code.
 
 ## Stack
 
 - FastAPI + Uvicorn
 - SQLAlchemy 2.x (ORM)
 - **SQLite pour le développement** (`cpco_dev.db`, généré automatiquement, ignoré par git) — décision de Bardas du 2026-07-03 faute de PostgreSQL/Docker sur la machine de dev
-- **Cible retenue dans le cadrage : PostgreSQL + PostGIS self-hosted** (voir `../plateforme-cpco/02-architecture/decisions.md`). Migration : remplacer `DATABASE_URL` dans `app/database.py`, ajouter `psycopg[binary]` + `geoalchemy2`, et remplacer les colonnes `lon`/`lat` (float) et `geom_json` (texte JSON) par de vraies colonnes `GEOGRAPHY(POINT/POLYGON/LINESTRING, 4326)`
+- **Cible retenue dans le cadrage : PostgreSQL + PostGIS self-hosted** (voir `../plateforme-commandement/02-architecture/decisions.md`). Migration : remplacer `DATABASE_URL` dans `app/database.py`, ajouter `psycopg[binary]` + `geoalchemy2`, et remplacer les colonnes `lon`/`lat` (float) et `geom_json` (texte JSON) par de vraies colonnes `GEOGRAPHY(POINT/POLYGON/LINESTRING, 4326)`
 
 ## Démarrer en local
 
@@ -27,7 +27,7 @@ Au démarrage, la base est créée et peuplée automatiquement (`app/seed.py`) s
 app/
   main.py         point d'entrée FastAPI, CORS (autorise localhost:*), montage des routers
   database.py     connexion SQLAlchemy (SQLite pour l'instant)
-  models.py       tables ORM, alignées sur ../plateforme-cpco/03-donnees/modele-donnees.md
+  models.py       tables ORM, alignées sur ../plateforme-commandement/03-donnees/modele-donnees.md
   schemas.py      schémas Pydantic de réponse
   seed.py         données de démonstration (mêmes valeurs que le prototype de référence)
   routers/        un fichier par domaine (situation, units, intelligence, logistics, operations, orders, incidents, alerts, admin)
