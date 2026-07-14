@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
-from .routers import admin, agenda, alerts, budget, courrier, deploiement, execution, incidents, intelligence, logistics, materiel, operations, orders, rh, situation, units, veille
+from .routers import admin, agenda, alerts, budget, communication, courrier, deploiement, execution, incidents, intelligence, logistics, materiel, operations, orders, rh, situation, units, veille
 from .seed import init_db
+from .storage import UPLOAD_DIR
 
 app = FastAPI(title="Plateforme CPCO — API", version="0.1.0")
 
@@ -40,6 +42,10 @@ app.include_router(rh.router, prefix="/api")
 app.include_router(deploiement.router, prefix="/api")
 app.include_router(veille.router, prefix="/api")
 app.include_router(execution.router, prefix="/api")
+app.include_router(communication.router, prefix="/api")
+
+# Pièces jointes du chat (documents, messages vocaux) — voir app/storage.py
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 @app.get("/api/health")

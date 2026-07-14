@@ -1,6 +1,7 @@
 fastapi==0.139.0
 uvicorn[standard]==0.49.0
 sqlalchemy==2.0.51
+python-multipart==0.0.20
 
 # À ajouter au passage en PostgreSQL/PostGIS (voir app/database.py) :
 # psycopg[binary]

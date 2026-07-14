@@ -460,3 +460,67 @@ class SuiviExecution(Base):
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
 
     unite: Mapped["Unit"] = relationship()
+
+
+# --- COMMUNICATION (chat et réunions VTC, 2026-07-14) ------------------------------
+
+class Message(Base):
+    """Message échangé par le chef avec ses unités subordonnées : texte, note vocale (fichier audio
+    réel enregistré depuis le navigateur) ou document joint (fichier réel). `diffusion=True` = envoi
+    à toutes les unités plutôt qu'aux seuls destinataires listés dans `destinataires`."""
+
+    __tablename__ = "messages"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    expediteur_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    type_message: Mapped[str] = mapped_column(String(20), default="texte")  # texte, vocal, document
+    contenu: Mapped[str | None] = mapped_column(Text, nullable=True)
+    fichier_url: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    fichier_nom: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    duree_secondes: Mapped[int | None] = mapped_column(Integer, nullable=True)  # message vocal
+    diffusion: Mapped[bool] = mapped_column(Boolean, default=False)
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+    date_envoi: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+    destinataires: Mapped[list["MessageRecipient"]] = relationship(back_populates="message")
+
+
+class MessageRecipient(Base):
+    __tablename__ = "message_recipients"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    message_id: Mapped[str] = mapped_column(ForeignKey("messages.id"))
+    unit_id: Mapped[str] = mapped_column(ForeignKey("units.id"))
+
+    message: Mapped["Message"] = relationship(back_populates="destinataires")
+    unit: Mapped["Unit"] = relationship()
+
+
+class Reunion(Base):
+    """Réunion en ligne (VTC) convoquée par le chef. La salle de réunion est simulée côté frontend,
+    sans vrai flux audio/vidéo (même principe que DroneVideoFeed pour le flux drone) : cette table
+    ne porte que le workflow de convocation et le statut de présence des participants."""
+
+    __tablename__ = "reunions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    titre: Mapped[str] = mapped_column(String(200))
+    organisateur_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    date_convocation: Mapped[datetime] = mapped_column(DateTime, default=now)
+    statut: Mapped[str] = mapped_column(String(20), default="convoquee")  # convoquee, en_cours, terminee, annulee
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    participants: Mapped[list["ReunionParticipant"]] = relationship(back_populates="reunion")
+
+
+class ReunionParticipant(Base):
+    __tablename__ = "reunion_participants"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    reunion_id: Mapped[str] = mapped_column(ForeignKey("reunions.id"))
+    unit_id: Mapped[str] = mapped_column(ForeignKey("units.id"))
+    statut: Mapped[str] = mapped_column(String(20), default="convoque")  # convoque, rejoint, absent
+
+    reunion: Mapped["Reunion"] = relationship(back_populates="participants")
+    unit: Mapped["Unit"] = relationship()

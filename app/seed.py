@@ -1106,6 +1106,57 @@ def reseeder_logistique_etendue(db: Session) -> None:
     db.commit()
 
 
+def reseeder_communication(db: Session) -> None:
+    """Régénère les messages et réunions de démo, avec des horodatages relatifs à l'instant présent
+    (même logique que reseeder_agenda pour les rendez-vous)."""
+    db.query(models.MessageRecipient).delete()
+    db.query(models.Message).delete()
+    db.query(models.ReunionParticipant).delete()
+    db.query(models.Reunion).delete()
+
+    unites = {u.code_unite: u for u in db.query(models.Unit).all()}
+    col_ba = db.query(models.User).filter(models.User.username == "col.ba").first()
+    if not unites or col_ba is None:
+        db.commit()
+        return
+
+    maintenant = datetime.now()
+
+    diffusion = models.Message(
+        expediteur_id=col_ba.id, type_message="texte",
+        contenu="Vigilance renforcée sur l'ensemble du secteur suite aux mouvements suspects signalés en Zone A3. Rendez-compte immédiat de toute anomalie.",
+        diffusion=True, classification="confidentiel", date_envoi=maintenant - timedelta(hours=2),
+    )
+    db.add(diffusion)
+    db.flush()
+    for unite in unites.values():
+        db.add(models.MessageRecipient(message_id=diffusion.id, unit_id=unite.id))
+
+    cible = models.Message(
+        expediteur_id=col_ba.id, type_message="texte",
+        contenu="Compte rendu de situation attendu avant 18h00.",
+        diffusion=False, classification="confidentiel", date_envoi=maintenant - timedelta(hours=1, minutes=10),
+    )
+    db.add(cible)
+    db.flush()
+    for code in ("BAT-1", "CIE-ALPHA"):
+        if code in unites:
+            db.add(models.MessageRecipient(message_id=cible.id, unit_id=unites[code].id))
+
+    reunion = models.Reunion(
+        titre="Point de coordination — Zone A3", organisateur_id=col_ba.id,
+        date_convocation=maintenant - timedelta(minutes=30), statut="convoquee",
+        classification="confidentiel", notes="Coordination inter-unités suite à la menace confirmée en A3.",
+    )
+    db.add(reunion)
+    db.flush()
+    for code, statut in (("BAT-1", "rejoint"), ("CIE-ALPHA", "convoque"), ("PA-NORD", "convoque")):
+        if code in unites:
+            db.add(models.ReunionParticipant(reunion_id=reunion.id, unit_id=unites[code].id, statut=statut))
+
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1118,6 +1169,7 @@ def init_db() -> None:
         reseeder_veille(db)
         reseeder_execution(db)
         reseeder_logistique_etendue(db)
+        reseeder_communication(db)
     finally:
         db.close()
 
