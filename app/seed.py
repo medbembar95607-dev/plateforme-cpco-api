@@ -118,7 +118,7 @@ def seed(db: Session) -> None:
     db.add_all([op1, op2, op3])
     db.flush()
 
-    o1 = models.Order(numero_ordre="OPORD-2026-014", type_ordre="OPORD", classification="secret", objet="Sécurisation de l'axe nord", contenu="Sécuriser l'axe de progression nord et maintenir les checkpoints Bravo et Charlie sous contrôle jusqu'à nouvel ordre.", statut="diffuse", emetteur="Col. Ba, Commandement CPCO", operation_id=op1.id, date_emission=datetime(2026, 7, 1, 8, 0))
+    o1 = models.Order(numero_ordre="OPORD-2026-014", type_ordre="OPORD", classification="secret", objet="Sécurisation de l'axe nord", contenu="Sécuriser l'axe de progression nord et maintenir les checkpoints Bravo et Charlie sous contrôle jusqu'à nouvel ordre.", statut="diffuse", emetteur="CEMGA, Commandement CPCO", operation_id=op1.id, date_emission=datetime(2026, 7, 1, 8, 0))
     o2 = models.Order(numero_ordre="FRAGO-2026-031", type_ordre="FRAGO", classification="confidentiel", objet="Ravitaillement prioritaire Convoi", contenu="Organiser un ravitaillement en carburant et munitions pour le Convoi dès rétablissement de la liaison.", statut="signe", emetteur="Cdt Sy, Officier opérations", operation_id=op2.id, date_emission=datetime(2026, 7, 3, 9, 15))
     o3 = models.Order(numero_ordre="WARNO-2026-009", type_ordre="WARNO", classification="secret", objet="Renforcement surveillance Zone A3", contenu="Préparer un renforcement du dispositif de surveillance sur la Zone A3 suite à confirmation de menace.", statut="brouillon", emetteur="Cne Diop, Officier renseignement", operation_id=op3.id, date_emission=None)
     db.add_all([o1, o2, o3])
@@ -143,7 +143,7 @@ def seed(db: Session) -> None:
         models.Alert(type_alerte="logistique", niveau="info", message="Ravitaillement disponible au Poste logistique Nord pour deux unités.", statut="resolue", date_creation=datetime(2026, 7, 3, 11, 58)),
     ])
 
-    col_ba = models.User(username="col.ba", nom_complet="Col. Ba", grade="Colonel", unit_id=pc.id, role="commandement", clearance_level="tres_secret")
+    col_ba = models.User(username="col.ba", nom_complet="CEMGA", grade="Colonel", unit_id=pc.id, role="commandement", clearance_level="tres_secret")
     db.add_all([
         col_ba,
         models.User(username="cdt.sy", nom_complet="Cdt Sy", grade="Commandant", unit_id=pc.id, role="officier_operations", clearance_level="secret"),
@@ -952,7 +952,7 @@ def reseeder_execution(db: Session) -> None:
         models.SuiviExecution(
             reference="OPORD-2026-014", type_ordre="OPORD", objet="Sécurisation de l'axe nord",
             instruction="Sécuriser l'axe de progression nord et tenir les checkpoints Bravo et Charlie.",
-            emetteur="Col. Ba, Commandement CPCO", unite_id=bat1.id,
+            emetteur="CEMGA, Commandement CPCO", unite_id=bat1.id,
             date_emission=j(-6, 8), date_limite=j(-4, 18),
             statut="execute", date_execution=j(-5, 14),
             compte_rendu="Axe sécurisé, checkpoints Bravo et Charlie tenus, aucune activité hostile constatée.",
@@ -961,7 +961,7 @@ def reseeder_execution(db: Session) -> None:
         models.SuiviExecution(
             reference="OPORD-2026-014", type_ordre="OPORD", objet="Sécurisation de l'axe nord — appui",
             instruction="Appuyer le Bataillon 1 sur le flanc est de l'axe nord.",
-            emetteur="Col. Ba, Commandement CPCO", unite_id=alpha.id,
+            emetteur="CEMGA, Commandement CPCO", unite_id=alpha.id,
             date_emission=j(-6, 8), date_limite=j(-4, 18),
             statut="en_cours", date_execution=None, compte_rendu=None,
             classification="secret",
@@ -993,7 +993,7 @@ def reseeder_execution(db: Session) -> None:
         models.SuiviExecution(
             reference="INSTRUCTION-2026-038", type_ordre="INSTRUCTION", objet="Compte-rendu effectifs mensuel",
             instruction="Transmettre le compte-rendu des effectifs disponibles pour le mois en cours.",
-            emetteur="Col. Ba, Commandement CPCO", unite_id=bat1.id,
+            emetteur="CEMGA, Commandement CPCO", unite_id=bat1.id,
             date_emission=j(-10, 8), date_limite=j(-8, 18),
             statut="execute", date_execution=j(-9, 10),
             compte_rendu="Effectifs transmis : 520 personnels, 4 postes à pourvoir signalés.",
@@ -1011,7 +1011,7 @@ def reseeder_execution(db: Session) -> None:
         models.SuiviExecution(
             reference="INSTRUCTION-2026-045", type_ordre="INSTRUCTION", objet="Rétablir la liaison radio principale",
             instruction="Diagnostiquer et rétablir la liaison radio principale avec le PC COP.",
-            emetteur="Col. Ba, Commandement CPCO", unite_id=convoi.id,
+            emetteur="CEMGA, Commandement CPCO", unite_id=convoi.id,
             date_emission=j(-2, 9), date_limite=j(0, 18),
             statut="en_cours", date_execution=None, compte_rendu=None,
             classification="confidentiel",
@@ -1019,7 +1019,7 @@ def reseeder_execution(db: Session) -> None:
         models.SuiviExecution(
             reference="INSTRUCTION-2026-040", type_ordre="INSTRUCTION", objet="Préparer le briefing hebdomadaire état-major",
             instruction="Préparer les éléments de situation pour le briefing hebdomadaire de l'état-major.",
-            emetteur="Col. Ba, Commandement CPCO", unite_id=pc.id,
+            emetteur="CEMGA, Commandement CPCO", unite_id=pc.id,
             date_emission=j(-1, 8), date_limite=j(3, 9),
             statut="en_attente", date_execution=None, compte_rendu=None,
             classification="confidentiel",
@@ -1036,7 +1036,7 @@ def reseeder_execution(db: Session) -> None:
         models.SuiviExecution(
             reference="WARNO-2026-011", type_ordre="WARNO", objet="Préparation relève Compagnie Alpha",
             instruction="Préparer la relève de la Compagnie Alpha par une unité fraîche sous 5 jours.",
-            emetteur="Col. Ba, Commandement CPCO", unite_id=bat1.id,
+            emetteur="CEMGA, Commandement CPCO", unite_id=bat1.id,
             date_emission=j(-1, 15), date_limite=j(5, 18),
             statut="en_attente", date_execution=None, compte_rendu=None,
             classification="confidentiel",
