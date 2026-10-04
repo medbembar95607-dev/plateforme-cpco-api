@@ -21,6 +21,12 @@ def migrer_colonnes_manquantes() -> None:
             ("sante_pct", "INTEGER DEFAULT 80"),
             ("vehicule_pct", "INTEGER DEFAULT 80"),
         ],
+        "intelligence_reports": [
+            ("credibilite_info", "INTEGER DEFAULT 3"),
+            ("lon", "FLOAT"),
+            ("lat", "FLOAT"),
+            ("redige_par", "VARCHAR(36)"),
+        ],
     }
     with engine.connect() as conn:
         for table, colonnes in colonnes_a_ajouter.items():
@@ -1157,6 +1163,44 @@ def reseeder_communication(db: Session) -> None:
     db.commit()
 
 
+def reseeder_renseignement_logistique(db: Session) -> None:
+    """Module Renseignement/Logistique enrichi (2026-10-04) : cotation complète et position des
+    rapports existants, demandes de ravitaillement de démonstration. Ne touche qu'aux rapports
+    encore non localisés et ne crée les demandes que si la table est vide."""
+    complements = {
+        # référence : (crédibilité, lon, lat) — positions proches des éléments déjà sur la carte
+        "HUMINT-2026-0045": (2, -7.90, 15.35),   # Mouvement suspect A3 -> zone menace A3
+        "SIGINT-2026-0112": (3, -6.85, 15.95),   # Activité radio irrégulière -> secteur Compagnie Alpha
+        "OSINT-2026-0033": (3, -12.95, 20.62),   # Zone logistique N2 -> Poste logistique Nord (Atar)
+    }
+    for reference, (credibilite, lon, lat) in complements.items():
+        rapport = db.query(models.IntelligenceReport).filter(models.IntelligenceReport.reference == reference).first()
+        if rapport is not None and rapport.lon is None:
+            rapport.credibilite_info = credibilite
+            rapport.lon = lon
+            rapport.lat = lat
+
+    if db.query(models.DemandeRavitaillement).count() == 0:
+        unites = {u.code_unite: u for u in db.query(models.Unit).all()}
+        maintenant = datetime.now()
+        demandes = [
+            ("CONVOI-LIMA", "carburant", 60, "urgent", "demandee", "Convoi immobilisé à mi-parcours sans complément carburant.", 3),
+            ("CONVOI-LIMA", "vehicule", 30, "vital", "demandee", "Deux véhicules hors service, risque d'abandon de matériel.", 2),
+            ("CIE-ALPHA", "carburant", 40, "routine", "en_cours", "Recomplètement avant la prochaine phase de progression.", 5),
+            ("BAT-1", "munitions", 25, "routine", "livree", "", 20),
+        ]
+        for code, type_stock, points, priorite, statut, commentaire, heures in demandes:
+            unite = unites.get(code)
+            if unite is None:
+                continue
+            db.add(models.DemandeRavitaillement(
+                unit_id=unite.id, type_stock=type_stock, points_pct=points, priorite=priorite, statut=statut,
+                commentaire=commentaire, date_demande=maintenant - timedelta(hours=heures),
+                date_traitement=maintenant - timedelta(hours=heures - 1) if statut != "demandee" else None,
+            ))
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1170,6 +1214,7 @@ def init_db() -> None:
         reseeder_execution(db)
         reseeder_logistique_etendue(db)
         reseeder_communication(db)
+        reseeder_renseignement_logistique(db)
     finally:
         db.close()
 

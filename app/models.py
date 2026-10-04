@@ -178,8 +178,14 @@ class IntelligenceReport(Base):
     titre: Mapped[str] = mapped_column(String(200))
     resume: Mapped[str] = mapped_column(Text)
     fiabilite_source: Mapped[str] = mapped_column(String(5), default="B")
+    # Cotation OTAN (code amirauté) : fiabilité de la source A-F ci-dessus, crédibilité de l'info 1-6.
+    credibilite_info: Mapped[int] = mapped_column(Integer, default=3)
     statut: Mapped[str] = mapped_column(String(20), default="observation")  # menace, observation, stabilise
     date_rapport: Mapped[datetime] = mapped_column(DateTime, default=now)
+    # Localisation de l'objet du renseignement (facultative : un rapport peut être non localisé).
+    lon: Mapped[float | None] = mapped_column(Float, nullable=True)
+    lat: Mapped[float | None] = mapped_column(Float, nullable=True)
+    redige_par: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
 
 class Threat(Base):
@@ -216,6 +222,25 @@ class StockLevel(Base):
     horodatage: Mapped[datetime] = mapped_column(DateTime, default=now)
 
     stock: Mapped["Stock"] = relationship(back_populates="niveaux")
+
+
+class DemandeRavitaillement(Base):
+    """Demande de ravitaillement d'une unité (2026-10-04). Les stocks étant suivis en pourcentage
+    (StockLevel), la quantité demandée est exprimée en points de pourcentage à ajouter."""
+
+    __tablename__ = "demandes_ravitaillement"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    unit_id: Mapped[str] = mapped_column(ForeignKey("units.id"))
+    type_stock: Mapped[str] = mapped_column(String(30))  # carburant, munitions, vivres, maintenance, armement, sante, vehicule
+    points_pct: Mapped[float] = mapped_column(Float)
+    priorite: Mapped[str] = mapped_column(String(20), default="routine")  # routine, urgent, vital
+    statut: Mapped[str] = mapped_column(String(20), default="demandee")  # demandee, en_cours, livree, refusee
+    commentaire: Mapped[str] = mapped_column(Text, default="")
+    demandeur_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    traite_par: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    date_demande: Mapped[datetime] = mapped_column(DateTime, default=now)
+    date_traitement: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class AlertThreshold(Base):

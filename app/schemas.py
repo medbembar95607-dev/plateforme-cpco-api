@@ -55,7 +55,11 @@ class IntelligenceReportOut(BaseModel):
     titre: str
     resume: str
     fiabilite_source: str
+    credibilite_info: int
     statut: str
+    date_rapport: datetime
+    lon: float | None
+    lat: float | None
 
 
 class StockLevelRow(BaseModel):

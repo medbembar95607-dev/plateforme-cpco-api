@@ -39,8 +39,9 @@ app/
 |---|---|
 | `GET /api/situation` | Écran Situation : unités + positions, menaces, checkpoints, zones, axes, KPI |
 | `GET /api/units` | Écran Unités |
-| `GET /api/intelligence-reports` | Écran Renseignement |
+| `GET /api/intelligence-reports`, `POST /api/intelligence-reports`, `POST .../{id}/statut` | Écran Renseignement (rapports cotés A1 à F6 et localisés ; rédaction et évaluation réservées aux rôles `officier_renseignement`, `commandement`, `administrateur`) |
 | `GET /api/logistics` | Écran Logistique (niveaux + alerte calculée par rapport aux seuils) |
+| `GET /api/logistics/demandes`, `POST /api/logistics/demandes`, `POST .../{id}/prendre-en-charge`, `.../livrer`, `.../refuser` | Demandes de ravitaillement (traitement réservé aux rôles `officier_logistique`, `commandement`, `administrateur` ; la livraison ajoute un niveau de stock relevé, plafonné à 100 %) |
 | `GET /api/operations` | Écran Opérations |
 | `GET /api/orders`, `POST /api/orders/{id}/advance` | Écran Ordres (workflow brouillon → signé → diffusé) |
 | `GET /api/incidents`, `POST /api/incidents` | Écran Incidents |
@@ -54,7 +55,7 @@ app/
 
 ## Journal d'audit (`audit_log`)
 
-Alimenté par `app/audit.py` (`log_action`) à chaque écriture sensible (`orders.advance`, `alerts.acknowledge`, `incidents.create`). Pas de vraie authentification : l'"utilisateur actif" est choisi dans un sélecteur de démonstration côté frontend (`UserSwitcher.tsx`) et transmis via l'en-tête `X-User-Id` ; `get_acting_user_id` (dépendance FastAPI) le lit, sans le vérifier. Une action sans en-tête est journalisée avec `user_id = null` (affiché "Non identifié" côté écran Administration).
+Alimenté par `app/audit.py` (`log_action`) à chaque écriture sensible (`orders.advance`, `alerts.acknowledge`, `incidents.create`, rapports de renseignement, demandes de ravitaillement). Les contrôles d'accès par rôle passent par `exiger_role` (403 avec motif lisible). Pas de vraie authentification : l'"utilisateur actif" est choisi dans un sélecteur de démonstration côté frontend (`UserSwitcher.tsx`) et transmis via l'en-tête `X-User-Id` ; `get_acting_user_id` (dépendance FastAPI) le lit, sans le vérifier. Une action sans en-tête est journalisée avec `user_id = null` (affiché "Non identifié" côté écran Administration).
 
 ## Déploiement (démonstration)
 
