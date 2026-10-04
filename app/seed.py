@@ -21,6 +21,10 @@ def migrer_colonnes_manquantes() -> None:
             ("sante_pct", "INTEGER DEFAULT 80"),
             ("vehicule_pct", "INTEGER DEFAULT 80"),
         ],
+        "operations": [
+            ("lon", "FLOAT"),
+            ("lat", "FLOAT"),
+        ],
         "intelligence_reports": [
             ("credibilite_info", "INTEGER DEFAULT 3"),
             ("lon", "FLOAT"),
@@ -1201,6 +1205,50 @@ def reseeder_renseignement_logistique(db: Session) -> None:
     db.commit()
 
 
+def reseeder_operations_geo(db: Session) -> None:
+    """Localisation des opérations (2026-10-04) : point de référence et rattachement des zones,
+    axes et checkpoints existants (operation_id était prévu au modèle mais jamais renseigné).
+    Ne modifie que ce qui n'est pas encore localisé ou rattaché."""
+    ops = {o.code_operation: o for o in db.query(models.Operation).all()}
+    if not ops:
+        return
+
+    points = {
+        "OPS-2026-014": (-6.38, 16.75),   # Sable Nord : centre de la Zone OPS (secteur Néma)
+        "OPS-2026-015": (-12.95, 20.62),  # Ravitaillement N2 : zone logistique N2 (Atar)
+        "OPS-2026-016": (-7.90, 15.35),   # Surveillance A3 : centre de la zone menace A3
+    }
+    for code, (lon, lat) in points.items():
+        op = ops.get(code)
+        if op is not None and op.lon is None:
+            op.lon, op.lat = lon, lat
+
+    rattachements_zones = {"Zone OPS": "OPS-2026-014", "Zone menace A3": "OPS-2026-016"}
+    for zone in db.query(models.OperationalArea).filter(models.OperationalArea.operation_id.is_(None)).all():
+        code = rattachements_zones.get(zone.nom)
+        if code in ops:
+            zone.operation_id = ops[code].id
+
+    bravo = db.query(models.Checkpoint).filter(models.Checkpoint.nom == "Checkpoint Bravo").first()
+    if bravo is not None and bravo.operation_id is None and "OPS-2026-014" in ops:
+        bravo.operation_id = ops["OPS-2026-014"].id
+
+    def ajouter_axe(nom: str, code: str, coordonnees: list[list[float]]) -> None:
+        if code in ops and db.query(models.ProgressAxis).filter(models.ProgressAxis.nom == nom).count() == 0:
+            db.add(models.ProgressAxis(nom=nom, operation_id=ops[code].id, geom_json=json.dumps(coordonnees)))
+
+    ajouter_axe("Axe de progression Sable Nord", "OPS-2026-014", [[-7.25, 16.62], [-6.85, 16.70], [-6.38, 16.75]])
+    ajouter_axe("Itinéraire ravitaillement N2", "OPS-2026-015", [[-13.05, 20.52], [-12.40, 20.75], [-11.60, 20.93]])
+
+    if "OPS-2026-015" in ops and db.query(models.OperationalArea).filter(models.OperationalArea.nom == "Zone logistique N2").count() == 0:
+        db.add(models.OperationalArea(
+            nom="Zone logistique N2", type_zone="zone_securisee", niveau_risque=1, classification="confidentiel",
+            operation_id=ops["OPS-2026-015"].id,
+            geom_json=json.dumps([[-13.15, 20.45], [-12.80, 20.45], [-12.80, 20.75], [-13.15, 20.75], [-13.15, 20.45]]),
+        ))
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1215,6 +1263,7 @@ def init_db() -> None:
         reseeder_logistique_etendue(db)
         reseeder_communication(db)
         reseeder_renseignement_logistique(db)
+        reseeder_operations_geo(db)
     finally:
         db.close()
 

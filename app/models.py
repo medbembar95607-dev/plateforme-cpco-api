@@ -119,6 +119,9 @@ class Operation(Base):
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
     date_lancement: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     date_fin: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # Point de référence de l'opération sur la carte (centre de la zone d'action ou PC de l'opération).
+    lon: Mapped[float | None] = mapped_column(Float, nullable=True)
+    lat: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
 class Order(Base):

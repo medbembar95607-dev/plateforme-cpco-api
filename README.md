@@ -42,7 +42,7 @@ app/
 | `GET /api/intelligence-reports`, `POST /api/intelligence-reports`, `POST .../{id}/statut` | Écran Renseignement (rapports cotés A1 à F6 et localisés ; rédaction et évaluation réservées aux rôles `officier_renseignement`, `commandement`, `administrateur`) |
 | `GET /api/logistics` | Écran Logistique (niveaux + alerte calculée par rapport aux seuils) |
 | `GET /api/logistics/demandes`, `POST /api/logistics/demandes`, `POST .../{id}/prendre-en-charge`, `.../livrer`, `.../refuser` | Demandes de ravitaillement (traitement réservé aux rôles `officier_logistique`, `commandement`, `administrateur` ; la livraison ajoute un niveau de stock relevé, plafonné à 100 %) |
-| `GET /api/operations` | Écran Opérations |
+| `GET /api/operations`, `GET /api/operations/carte` | Écran Opérations (liste, et géographie de chaque opération : point de référence, zones, axes, checkpoints rattachés, unités engagées via les destinataires de ses ordres) |
 | `GET /api/orders`, `POST /api/orders/{id}/advance` | Écran Ordres (workflow brouillon → signé → diffusé) |
 | `GET /api/incidents`, `POST /api/incidents` | Écran Incidents |
 | `GET /api/alerts`, `POST /api/alerts/{id}/acknowledge` | Écran Alertes |
