@@ -71,5 +71,5 @@ CORS (`app/main.py`) autorise explicitement les origines des frontends déployé
 
 - Pas d'authentification : tous les endpoints sont ouverts, pas de vérification de rôle/permission côté backend (RBAC affiché à l'écran Administration mais pas encore appliqué). L'en-tête `X-User-Id` n'est pas vérifié, n'importe quel appelant peut prétendre être n'importe qui — acceptable en dev, à corriger avant tout déploiement réel
 - Pas de tables `roles`/`permissions`/`role_permissions` en base : `/admin/roles` renvoie un dictionnaire statique en dur dans `routers/admin.py`
-- `unit_id` de `users` non exploité par l'API (pas de filtrage par unité/chaîne de commandement, contrairement au RLS hiérarchique du MVP `cadrage-app-c2`)
+- `unit_id` de `users` non exploité par l'API (pas de filtrage par unité/chaîne de commandement)
 - Géométries en `lon`/`lat` simples ou JSON, pas de vrais types PostGIS — voir la section Stack ci-dessus pour la migration prévue
