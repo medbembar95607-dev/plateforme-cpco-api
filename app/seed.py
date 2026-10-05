@@ -1274,6 +1274,47 @@ def repositionner_frontiere_est(db: Session) -> None:
     db.commit()
 
 
+# Géographie des opérations alignée sur le dispositif frontière est (2026-10-05).
+GEO_OPERATIONS_EST = {
+    "OPS-2026-014": {  # Sable Nord : secteur sud-est de Bataillon 1 et Compagnie Alpha, axe vers le nord
+        "point": (-6.42, 16.65),
+        "zone": ("Zone OPS", [[-6.85, 15.95], [-6.0, 15.95], [-6.0, 17.35], [-6.85, 17.35], [-6.85, 15.95]]),
+        "axe": ("Axe de progression Sable Nord", [[-6.30, 16.25], [-6.45, 17.10], [-6.50, 18.00], [-6.62, 19.00]]),
+    },
+    "OPS-2026-015": {  # Ravitaillement N2 : depuis le Poste logistique Nord vers le Poste Avancé Nord
+        "point": (-7.05, 22.30),
+        "zone": ("Zone logistique N2", [[-7.35, 22.05], [-6.75, 22.05], [-6.75, 22.55], [-7.35, 22.55], [-7.35, 22.05]]),
+        "axe": ("Itinéraire ravitaillement N2", [[-7.02, 22.30], [-7.10, 23.35], [-7.27, 24.40]]),
+    },
+}
+CHECKPOINT_BRAVO_EST = (-6.47, 17.55)  # sur l'axe Sable Nord, entre Bataillon 1 et le Convoi
+
+
+def realigner_operations_frontiere_est(db: Session) -> None:
+    """Applique GEO_OPERATIONS_EST (point, zone, axe) et la position du checkpoint Bravo.
+    Idempotent : réécrit toujours les mêmes valeurs ; la zone menace A3 n'est pas concernée."""
+    ops = {o.code_operation: o for o in db.query(models.Operation).all()}
+    for code, geo in GEO_OPERATIONS_EST.items():
+        op = ops.get(code)
+        if op is None:
+            continue
+        op.lon, op.lat = geo["point"]
+        nom_zone, coords_zone = geo["zone"]
+        zone = db.query(models.OperationalArea).filter(models.OperationalArea.nom == nom_zone).first()
+        if zone is not None:
+            zone.geom_json = json.dumps(coords_zone)
+            zone.operation_id = op.id
+        nom_axe, coords_axe = geo["axe"]
+        axe = db.query(models.ProgressAxis).filter(models.ProgressAxis.nom == nom_axe).first()
+        if axe is not None:
+            axe.geom_json = json.dumps(coords_axe)
+            axe.operation_id = op.id
+    bravo = db.query(models.Checkpoint).filter(models.Checkpoint.nom == "Checkpoint Bravo").first()
+    if bravo is not None:
+        bravo.lon, bravo.lat = CHECKPOINT_BRAVO_EST
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1290,6 +1331,7 @@ def init_db() -> None:
         reseeder_renseignement_logistique(db)
         reseeder_operations_geo(db)
         repositionner_frontiere_est(db)
+        realigner_operations_frontiere_est(db)
     finally:
         db.close()
 
