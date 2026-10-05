@@ -548,6 +548,23 @@ class ArticleMedia(Base):
     date_publication: Mapped[datetime] = mapped_column(DateTime, default=now)
 
 
+class NoteDemo(Base):
+    """Écran de démonstration (2026-10-05) : document saisi (note d'information, message, note de
+    service) et liste des éléments créés à partir de lui dans les autres écrans."""
+
+    __tablename__ = "notes_demo"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    type_document: Mapped[str] = mapped_column(String(30))  # note_information, message, note_service
+    emetteur: Mapped[str] = mapped_column(String(150))
+    classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
+    objet: Mapped[str] = mapped_column(String(200))
+    texte: Mapped[str] = mapped_column(Text)
+    impacts_json: Mapped[str] = mapped_column(Text, default="[]")
+    saisi_par: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    date_saisie: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
 class SuiviExecution(Base):
     """Suivi d'exécution des ordres et instructions par unité, pour la vue du chef (délai tenu ou
     dépassé, compte rendu). Table volontairement séparée de orders/order_recipients (qui gèrent le
