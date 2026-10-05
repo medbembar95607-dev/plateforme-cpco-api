@@ -412,7 +412,7 @@ def _dernier_numero(references: list[str], prefixe: str) -> int:
 def _creer(db: Session, impact: dict, document: DocumentDemo, user_id: str | None) -> dict:
     p = impact["payload"]
     if impact["type"] == "incident":
-        objet = models.Incident(type_incident=p["type_incident"], niveau_gravite=p["niveau_gravite"], localite=p["localite"],
+        objet = models.Incident(type_incident=p["type_incident"], niveau_gravite=p["niveau_gravite"], localite=p.get("localite") or "Non précisée",
                                 description=p["description"], declarant=p["declarant"], lon=p.get("lon"), lat=p.get("lat"),
                                 classification=document.classification)
         table = "incidents"
@@ -424,12 +424,12 @@ def _creer(db: Session, impact: dict, document: DocumentDemo, user_id: str | Non
         objet = models.IntelligenceReport(reference=_prochaine_reference(db, p["type_renseignement"]),
                                           type_renseignement=p["type_renseignement"], classification=p["classification"],
                                           titre=p["titre"], resume=p["resume"], fiabilite_source=p["fiabilite_source"],
-                                          credibilite_info=p["credibilite_info"], statut=p["statut"],
+                                          credibilite_info=int(p["credibilite_info"]), statut=p["statut"],
                                           lon=p.get("lon"), lat=p.get("lat"), redige_par=user_id)
         table = "intelligence_reports"
     elif impact["type"] == "demande_ravitaillement":
-        objet = models.DemandeRavitaillement(unit_id=p["unit_id"], type_stock=p["type_stock"], points_pct=p["points_pct"],
-                                             priorite=p["priorite"], commentaire=p["commentaire"], demandeur_id=user_id)
+        objet = models.DemandeRavitaillement(unit_id=p["unit_id"], type_stock=p["type_stock"], points_pct=float(p["points_pct"]),
+                                             priorite=p["priorite"], commentaire=p.get("commentaire") or None, demandeur_id=user_id)
         table = "demandes_ravitaillement"
     elif impact["type"] == "courrier":
         prefixe = f"COUR-{datetime.now().year}-"
@@ -456,35 +456,35 @@ def _creer(db: Session, impact: dict, document: DocumentDemo, user_id: str | Non
         table = "suivi_execution"
     elif impact["type"] == "rendez_vous":
         objet = models.RendezVous(titre=p["titre"], type_rdv=p["type_rdv"], date_debut=datetime.fromisoformat(p["date_debut"]),
-                                  date_fin=datetime.fromisoformat(p["date_fin"]), lieu=p["lieu"], participants=p["participants"],
-                                  statut="a_confirmer", classification=document.classification, notes=p["notes"])
+                                  date_fin=datetime.fromisoformat(p["date_fin"]), lieu=p["lieu"], participants=p.get("participants") or None,
+                                  statut="a_confirmer", classification=document.classification, notes=p.get("notes") or None)
         table = "rendez_vous"
     elif impact["type"] == "materiel":
         if p["mode"] == "decompte":
             objet = db.get(models.Materiel, p["materiel_id"])
             if objet is None:
                 raise HTTPException(status_code=404, detail="Matériel introuvable")
-            objet.quantite = max(0, objet.quantite - p["nombre"])
+            objet.quantite = max(0, objet.quantite - int(p["nombre"]))
         else:
             objet = models.Materiel(nom=p["nom"], categorie=p["categorie"], type_materiel="Signalement opérationnel", armee="terre",
-                                    formation_affectation=p["formation_affectation"], fonction=p["fonction"], statut_dotation="en_dotation",
-                                    etat=p["etat"], quantite=p["nombre"], seuil_alerte=0, dotation_ted=p["nombre"],
+                                    formation_affectation=p["formation_affectation"], fonction=p.get("fonction") or None, statut_dotation="en_dotation",
+                                    etat=p["etat"], quantite=int(p["nombre"]), seuil_alerte=0, dotation_ted=int(p["nombre"]),
                                     classification=document.classification)
         table = "materiels"
     elif impact["type"] == "budget":
         objet = db.get(models.LigneBudgetaire, p["ligne_id"])
         if objet is None:
             raise HTTPException(status_code=404, detail="Ligne budgétaire introuvable")
-        objet.montant_consomme += p["montant"]
+        objet.montant_consomme += float(p["montant"])
         table = "lignes_budgetaires"
     elif impact["type"] == "recrutement":
         objet = models.BesoinRecrutement(poste=p["poste"], categorie=p["categorie"], armee="terre", formation_affectation=p["formation_affectation"],
-                                         nombre_postes=p["nombre_postes"], priorite=p["priorite"], statut="ouvert",
+                                         nombre_postes=int(p["nombre_postes"]), priorite=p["priorite"], statut="ouvert",
                                          classification=document.classification)
         table = "besoins_recrutement"
     elif impact["type"] == "formation":
         objet = models.BesoinFormation(intitule=p["intitule"], categorie=p["categorie"], armee="terre", formation_affectation=p["formation_affectation"],
-                                       nombre_places=p["nombre_places"], priorite=p["priorite"], statut="a_planifier",
+                                       nombre_places=int(p["nombre_places"]), priorite=p["priorite"], statut="a_planifier",
                                        classification=document.classification)
         table = "besoins_formation"
     else:
@@ -501,7 +501,14 @@ def _creer(db: Session, impact: dict, document: DocumentDemo, user_id: str | Non
 def appliquer(demande: ApplicationDemo, db: Session = Depends(get_db), user_id: str | None = Depends(get_acting_user_id)):
     if not demande.impacts:
         raise HTTPException(status_code=422, detail="Aucun impact sélectionné")
-    resultats = [_creer(db, impact, demande.document, user_id) for impact in demande.impacts]
+    resultats = []
+    for impact in demande.impacts:
+        # Un impact saisi ou corrigé à la main peut être incomplet : refus lisible plutôt qu'erreur serveur.
+        try:
+            resultats.append(_creer(db, impact, demande.document, user_id))
+        except (KeyError, ValueError, TypeError) as erreur:
+            db.rollback()
+            raise HTTPException(status_code=422, detail=f"Mise à jour incomplète ou invalide : « {impact.get('titre', impact.get('type'))} » ({erreur})")
     note = models.NoteDemo(
         type_document=demande.document.type_document, emetteur=demande.document.emetteur,
         classification=demande.document.classification, objet=demande.document.objet, texte=demande.document.texte,

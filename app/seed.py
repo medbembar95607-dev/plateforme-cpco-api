@@ -1261,19 +1261,17 @@ def reseeder_operations_geo(db: Session) -> None:
 
 def repositionner_frontiere_est(db: Session) -> None:
     """Déplace les unités sur le dispositif frontière est. Les positions étant un historique,
-    on ajoute une nouvelle position (déplacement) plutôt que de réécrire l'ancienne ; rien n'est
-    ajouté si l'unité y est déjà."""
+    on ajoute une nouvelle position (déplacement) plutôt que de réécrire l'ancienne.
+
+    Appliqué une seule fois par unité : si la position cible figure déjà dans son historique, on ne
+    touche à rien, pour ne pas annuler à chaque redémarrage un déplacement saisi à la main depuis
+    l'écran de démonstration (onglet Données)."""
     for unite in db.query(models.Unit).all():
         cible = POSITIONS_FRONTIERE_EST.get(unite.code_unite)
         if cible is None:
             continue
-        derniere = (
-            db.query(models.UnitPosition)
-            .filter(models.UnitPosition.unit_id == unite.id)
-            .order_by(models.UnitPosition.position_time.desc())
-            .first()
-        )
-        if derniere is None or (round(derniere.lon, 4), round(derniere.lat, 4)) != cible:
+        historique = db.query(models.UnitPosition).filter(models.UnitPosition.unit_id == unite.id).all()
+        if not any((round(p.lon, 4), round(p.lat, 4)) == cible for p in historique):
             db.add(models.UnitPosition(unit_id=unite.id, lon=cible[0], lat=cible[1], source="manuel"))
     db.commit()
 
