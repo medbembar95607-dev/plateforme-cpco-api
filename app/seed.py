@@ -25,6 +25,10 @@ def migrer_colonnes_manquantes() -> None:
             ("lon", "FLOAT"),
             ("lat", "FLOAT"),
         ],
+        "alerts": [
+            ("lon", "FLOAT"),
+            ("lat", "FLOAT"),
+        ],
         "intelligence_reports": [
             ("credibilite_info", "INTEGER DEFAULT 3"),
             ("lon", "FLOAT"),
@@ -1332,6 +1336,25 @@ def localiser_incidents(db: Session) -> None:
     db.commit()
 
 
+# Localisation des alertes de démonstration (2026-10-05) : sur l'élément concerné par le message.
+POSITIONS_ALERTES = [
+    ("Zone A3", (-7.90, 15.35)),
+    ("Compagnie Alpha", POSITIONS_FRONTIERE_EST["CIE-ALPHA"]),
+    ("Convoi", POSITIONS_FRONTIERE_EST["CONVOI-LIMA"]),
+    ("Poste logistique Nord", POSITIONS_FRONTIERE_EST["POSTE-LOG-NORD"]),
+]
+
+
+def localiser_alertes(db: Session) -> None:
+    """Renseigne la position des alertes de démo encore non localisées (mot-clé du message)."""
+    for alerte in db.query(models.Alert).filter(models.Alert.lon.is_(None)).all():
+        for mot_cle, (lon, lat) in POSITIONS_ALERTES:
+            if mot_cle in alerte.message:
+                alerte.lon, alerte.lat = lon, lat
+                break
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1350,6 +1373,7 @@ def init_db() -> None:
         repositionner_frontiere_est(db)
         realigner_operations_frontiere_est(db)
         localiser_incidents(db)
+        localiser_alertes(db)
     finally:
         db.close()
 

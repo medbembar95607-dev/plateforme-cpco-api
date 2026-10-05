@@ -265,6 +265,9 @@ class Alert(Base):
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
     statut: Mapped[str] = mapped_column(String(20), default="active")  # active, acquittee, resolue
     date_creation: Mapped[datetime] = mapped_column(DateTime, default=now)
+    # Lieu concerné par l'alerte (unité, zone, poste), facultatif.
+    lon: Mapped[float | None] = mapped_column(Float, nullable=True)
+    lat: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
 class AuditLog(Base):

@@ -137,6 +137,8 @@ class AlertOut(BaseModel):
     message: str
     statut: str
     date_creation: datetime
+    lon: float | None = None
+    lat: float | None = None
 
 
 class UserOut(BaseModel):
