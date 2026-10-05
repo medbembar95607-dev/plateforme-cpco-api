@@ -112,3 +112,59 @@ def social_media(db: Session = Depends(get_db)):
             "vuesCumulees": sum(p.vues for p in publications),
         },
     }
+
+
+# --- Médias : presse publique et presse libre (2026-10-05) -------------------------------
+# Données de démonstration : aucun média réel nommé, aucune collecte réelle.
+
+@router.get("/medias")
+def medias(db: Session = Depends(get_db)):
+    sujets = db.query(models.SujetMedia).all()
+    sujets.sort(key=lambda s: s.articles_presse_publique + s.articles_presse_libre, reverse=True)
+    articles = db.query(models.ArticleMedia).order_by(models.ArticleMedia.audience.desc()).all()
+    return {
+        "donneesSimulees": True,
+        "sujets": [
+            {
+                "id": s.id,
+                "libelle": s.libelle,
+                "articlesPressePublique": s.articles_presse_publique,
+                "articlesPresseLibre": s.articles_presse_libre,
+                "tonalitePublique": s.tonalite_publique,
+                "tonaliteLibre": s.tonalite_libre,
+                "domaineRisque": s.domaine_risque,
+                "niveauRisque": s.niveau_risque,
+                "evolutionPct": s.evolution_pct,
+                "resume": s.resume,
+            }
+            for s in sujets
+        ],
+        "articles": [
+            {
+                "id": a.id,
+                "secteur": a.secteur,
+                "support": a.support,
+                "typeOrgane": a.type_organe,
+                "titre": a.titre,
+                "audience": a.audience,
+                "reprises": a.reprises,
+                "tonalite": a.tonalite,
+                "resume": a.resume,
+                "domaineRisque": a.domaine_risque,
+                "niveauRisque": a.niveau_risque,
+                "langue": a.langue,
+                "actionRecommandee": a.action_recommandee,
+                "datePublication": a.date_publication.isoformat(),
+            }
+            for a in articles
+        ],
+        "indicateurs": {
+            "articles24h": sum(s.articles_presse_publique + s.articles_presse_libre for s in sujets),
+            "articlesPressePublique": sum(s.articles_presse_publique for s in sujets),
+            "articlesPresseLibre": sum(s.articles_presse_libre for s in sujets),
+            # Divergence : même sujet, tonalité officielle ou neutre côté public, critique côté libre (ou l'inverse).
+            "sujetsDivergents": sum(1 for s in sujets if (s.tonalite_publique == "critique") != (s.tonalite_libre == "critique")),
+            "contenusRisqueEleve": sum(1 for a in articles if a.niveau_risque in ("eleve", "critique")),
+            "audienceCumulee": sum(a.audience for a in articles),
+        },
+    }

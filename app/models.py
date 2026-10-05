@@ -507,6 +507,47 @@ class PublicationSociale(Base):
     date_publication: Mapped[datetime] = mapped_column(DateTime, default=now)
 
 
+class SujetMedia(Base):
+    """Veille des médias (2026-10-05) : sujet à la une, avec sa couverture comparée entre presse
+    publique et presse libre. Données de démonstration : pas de collecte réelle à ce stade."""
+
+    __tablename__ = "sujets_medias"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    libelle: Mapped[str] = mapped_column(String(200))
+    articles_presse_publique: Mapped[int] = mapped_column(Integer, default=0)  # sur 24 h
+    articles_presse_libre: Mapped[int] = mapped_column(Integer, default=0)
+    tonalite_publique: Mapped[str] = mapped_column(String(20))  # officielle, neutre, critique
+    tonalite_libre: Mapped[str] = mapped_column(String(20))
+    domaine_risque: Mapped[str] = mapped_column(String(20))  # securitaire, economique, diplomatique, social
+    niveau_risque: Mapped[str] = mapped_column(String(20))  # faible, modere, eleve, critique
+    evolution_pct: Mapped[int] = mapped_column(Integer, default=0)
+    resume: Mapped[str] = mapped_column(Text)
+    date_maj: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class ArticleMedia(Base):
+    """Article, reportage ou émission à forte audience présentant un risque. L'organe est décrit
+    par son type (aucun média réel nommé), le contenu est résumé."""
+
+    __tablename__ = "articles_medias"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    secteur: Mapped[str] = mapped_column(String(20))  # publique, libre
+    support: Mapped[str] = mapped_column(String(20))  # television, radio, presse_ecrite, site_web, agence
+    type_organe: Mapped[str] = mapped_column(String(150))
+    titre: Mapped[str] = mapped_column(String(250))
+    audience: Mapped[int] = mapped_column(Integer, default=0)  # lectures ou vues
+    reprises: Mapped[int] = mapped_column(Integer, default=0)  # reprises par d'autres médias / réseaux
+    tonalite: Mapped[str] = mapped_column(String(20))
+    resume: Mapped[str] = mapped_column(Text)
+    domaine_risque: Mapped[str] = mapped_column(String(20))
+    niveau_risque: Mapped[str] = mapped_column(String(20))
+    langue: Mapped[str] = mapped_column(String(50))
+    action_recommandee: Mapped[str] = mapped_column(Text)
+    date_publication: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
 class SuiviExecution(Base):
     """Suivi d'exécution des ordres et instructions par unité, pour la vue du chef (délai tenu ou
     dépassé, compte rendu). Table volontairement séparée de orders/order_recipients (qui gèrent le

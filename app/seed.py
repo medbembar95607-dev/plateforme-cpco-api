@@ -1420,6 +1420,80 @@ def reseeder_social_media(db: Session) -> None:
     db.commit()
 
 
+def reseeder_medias(db: Session) -> None:
+    """Veille des médias (2026-10-05) : presse publique et presse libre, données de DÉMONSTRATION.
+    Aucun média réel nommé (organes décrits par leur type), contenus résumés. Upsert par libellé /
+    par titre."""
+    maintenant = datetime.now()
+    sujets = [
+        ("Sécurité à la frontière est", 14, 31, "officielle", "critique", "securitaire", "eleve", 120,
+         "La presse publique relaie les communiqués sur le renforcement du dispositif ; la presse libre multiplie les témoignages d'habitants inquiets et interroge l'efficacité de la protection des localités frontalières."),
+        ("Coût de la vie et prix du carburant", 6, 27, "neutre", "critique", "economique", "eleve", 70,
+         "Couverture très inégale : la presse publique met en avant les mesures de subvention, la presse libre ouvre largement ses colonnes aux commerçants et aux consommateurs mécontents."),
+        ("Accueil des réfugiés maliens à Mbera", 9, 12, "officielle", "neutre", "social", "modere", 30,
+         "Sujet traité de façon proche des deux côtés, autour de la saturation du camp et de l'appel aux bailleurs internationaux."),
+        ("Coopération sécuritaire et partenaires étrangers", 11, 8, "officielle", "critique", "diplomatique", "modere", 45,
+         "La presse publique valorise les accords signés ; une partie de la presse libre questionne la transparence des engagements et relaie des analyses étrangères défavorables."),
+        ("Services de base à Nouakchott (eau, électricité)", 4, 18, "neutre", "critique", "social", "modere", 55,
+         "Reportages de terrain de la presse libre dans les quartiers périphériques ; la presse publique évoque surtout les investissements programmés."),
+        ("Migration irrégulière depuis Nouadhibou", 5, 9, "officielle", "neutre", "securitaire", "modere", 20,
+         "Bilans des interceptions côté presse publique, portraits de candidats au départ et enquêtes sur les réseaux de passeurs côté presse libre."),
+    ]
+    articles = [
+        ("libre", "site_web", "Site d'information indépendant arabophone", "Des habitants de l'Est racontent leurs nuits d'inquiétude",
+         184000, 64, "critique",
+         "Recueil de témoignages d'habitants de localités frontalières faisant état de passages d'hommes armés, sans confirmation officielle ; fortement repris sur les réseaux sociaux.",
+         "securitaire", "eleve", "Arabe",
+         "Croiser avec les comptes rendus des unités du secteur ; si les faits sont inexacts, communication officielle rassurante et factuelle, sans polémique avec le média.", 5),
+        ("publique", "television", "Télévision publique nationale", "Journal télévisé : renforcement du dispositif militaire à l'Est",
+         152000, 18, "officielle",
+         "Reportage sur l'arrivée de renforts et les patrouilles le long de la frontière, avec interviews d'officiers.",
+         "securitaire", "faible", "Arabe, hassaniya",
+         "Vérifier qu'aucune information sensible (effectifs, positions précises) n'a été diffusée à l'antenne.", 8),
+        ("libre", "television", "Chaîne de télévision privée", "Débat : l'État peut-il encore contenir les prix ?",
+         126000, 22, "critique",
+         "Plateau réunissant économistes et représentants de commerçants, tonalité très critique sur la gestion des prix du carburant et des denrées.",
+         "economique", "eleve", "Hassaniya",
+         "Transmettre l'analyse aux départements économiques ; suivre la reprise des arguments sur les réseaux sociaux.", 12),
+        ("libre", "presse_ecrite", "Hebdomadaire indépendant francophone", "Partenariats sécuritaires : ce que les accords ne disent pas",
+         41000, 15, "critique",
+         "Analyse questionnant la contrepartie des accords de coopération sécuritaire et citant des sources diplomatiques étrangères anonymes.",
+         "diplomatique", "modere", "Français",
+         "Information du ministère des Affaires étrangères ; aucune action sur le média, suivre d'éventuelles reprises par la presse étrangère.", 30),
+        ("publique", "agence", "Agence de presse officielle", "Le gouvernement annonce de nouvelles mesures de soutien aux prix",
+         96000, 41, "officielle",
+         "Dépêche détaillant les mesures de subvention et le calendrier de mise en œuvre, reprise par l'ensemble des médias publics.",
+         "economique", "faible", "Arabe, français",
+         "Aucune ; utile comme référence pour contrer les rumeurs de pénurie relevées dans la veille des réseaux sociaux.", 16),
+        ("libre", "radio", "Radio privée à forte audience", "Émission interactive : les auditeurs dénoncent les coupures d'eau",
+         88000, 9, "critique",
+         "Appels d'auditeurs de quartiers périphériques, certains évoquant des rassemblements prévus devant les agences de distribution.",
+         "social", "modere", "Hassaniya, pulaar, wolof",
+         "Relayer aux autorités locales et aux services d'ordre public ; suivre la mobilisation annoncée.", 20),
+        ("publique", "radio", "Radio publique nationale", "Mbera : appel à l'aide internationale pour les réfugiés",
+         54000, 7, "neutre",
+         "Reportage au camp de Mbera sur l'augmentation des arrivées et les besoins en eau et en santé.",
+         "social", "modere", "Arabe, pulaar",
+         "Coordination avec les services civils concernés ; surveiller les tensions avec les populations hôtes évoquées dans le reportage.", 26),
+    ]
+    existants = {x.libelle: x for x in db.query(models.SujetMedia).all()}
+    for libelle, nb_pub, nb_lib, ton_pub, ton_lib, domaine, niveau, evolution, resume in sujets:
+        x = existants.get(libelle) or models.SujetMedia(libelle=libelle)
+        x.articles_presse_publique, x.articles_presse_libre = nb_pub, nb_lib
+        x.tonalite_publique, x.tonalite_libre = ton_pub, ton_lib
+        x.domaine_risque, x.niveau_risque, x.evolution_pct, x.resume = domaine, niveau, evolution, resume
+        x.date_maj = maintenant
+        db.add(x)
+    existants_art = {a.titre: a for a in db.query(models.ArticleMedia).all()}
+    for secteur, support, organe, titre, audience, reprises, tonalite, resume, domaine, niveau, langue, action, heures in articles:
+        a = existants_art.get(titre) or models.ArticleMedia(titre=titre)
+        a.secteur, a.support, a.type_organe, a.audience, a.reprises, a.tonalite = secteur, support, organe, audience, reprises, tonalite
+        a.resume, a.domaine_risque, a.niveau_risque, a.langue, a.action_recommandee = resume, domaine, niveau, langue, action
+        a.date_publication = maintenant - timedelta(hours=heures)
+        db.add(a)
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1440,6 +1514,7 @@ def init_db() -> None:
         localiser_incidents(db)
         localiser_alertes(db)
         reseeder_social_media(db)
+        reseeder_medias(db)
     finally:
         db.close()
 
