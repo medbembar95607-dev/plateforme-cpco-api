@@ -41,6 +41,19 @@ def migrer_colonnes_manquantes() -> None:
         conn.commit()
 
 
+# Dispositif à l'est (2026-10-05) : chaque unité à environ 75 km à l'intérieur de la frontière avec
+# le Mali / l'Algérie, du nord-est au sud-est. Positions vérifiées dans le contour précis du pays
+# (marge large : aux petits zooms le fond de carte simplifie fortement le tracé des frontières).
+POSITIONS_FRONTIERE_EST = {
+    "PA-NORD": (-7.27, 24.40),         # nord-est
+    "POSTE-LOG-NORD": (-7.02, 22.30),  # nord-est
+    "PC-CPCO": (-6.74, 20.00),         # est
+    "CONVOI-LIMA": (-6.50, 18.00),     # est
+    "BAT-1": (-6.45, 17.10),           # sud-est
+    "CIE-ALPHA": (-6.30, 16.25),       # sud-est
+}
+
+
 def seed(db: Session) -> None:
     if db.query(models.Unit).count() > 0:
         return
@@ -54,17 +67,10 @@ def seed(db: Session) -> None:
     db.add_all([pc, u1, u2, u3, u4, u5])
     db.flush()
 
-    # Positions réparties sur le territoire mauritanien (+ Léré au Mali pour la menace),
-    # sur demande de Bardas le 2026-07-03 — coordonnées approximatives des localités citées.
-    positions = [
-        (u1, -7.25, 16.62, "12:33"),    # Bataillon 1 -> Néma
-        (u2, -7.025414608093178, 15.705384312755095, "12:24"),    # Compagnie Alpha
-        (u3, -11.60, 20.93, "12:08"),   # Poste Avancé Nord -> Ouadâne
-        (u4, -5.774114140770708, 15.707085189958388, "11:51"),    # Convoi
-        (u5, -13.05, 20.52, "11:58"),   # Poste logistique Nord -> Atar
-        (pc, -15.99, 18.18, "12:00"),   # PC COP -> inchangé (secteur Nouakchott)
-    ]
-    for unit, lon, lat, _heure in positions:
+    # Dispositif le long des frontières est, nord-est et sud-est (demande de Bardas du 2026-10-05),
+    # voir POSITIONS_FRONTIERE_EST ; repositionner_frontiere_est() applique la même chose à une base existante.
+    for unit in (u1, u2, u3, u4, u5, pc):
+        lon, lat = POSITIONS_FRONTIERE_EST[unit.code_unite]
         db.add(models.UnitPosition(unit_id=unit.id, lon=lon, lat=lat, source="manuel"))
 
     db.add(models.Threat(
@@ -1249,6 +1255,25 @@ def reseeder_operations_geo(db: Session) -> None:
     db.commit()
 
 
+def repositionner_frontiere_est(db: Session) -> None:
+    """Déplace les unités sur le dispositif frontière est. Les positions étant un historique,
+    on ajoute une nouvelle position (déplacement) plutôt que de réécrire l'ancienne ; rien n'est
+    ajouté si l'unité y est déjà."""
+    for unite in db.query(models.Unit).all():
+        cible = POSITIONS_FRONTIERE_EST.get(unite.code_unite)
+        if cible is None:
+            continue
+        derniere = (
+            db.query(models.UnitPosition)
+            .filter(models.UnitPosition.unit_id == unite.id)
+            .order_by(models.UnitPosition.position_time.desc())
+            .first()
+        )
+        if derniere is None or (round(derniere.lon, 4), round(derniere.lat, 4)) != cible:
+            db.add(models.UnitPosition(unit_id=unite.id, lon=cible[0], lat=cible[1], source="manuel"))
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1264,6 +1289,7 @@ def init_db() -> None:
         reseeder_communication(db)
         reseeder_renseignement_logistique(db)
         reseeder_operations_geo(db)
+        repositionner_frontiere_est(db)
     finally:
         db.close()
 
