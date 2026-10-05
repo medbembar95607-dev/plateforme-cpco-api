@@ -1355,6 +1355,71 @@ def localiser_alertes(db: Session) -> None:
     db.commit()
 
 
+def reseeder_social_media(db: Session) -> None:
+    """Veille des réseaux sociaux (2026-10-05) : tendances et publications de DÉMONSTRATION.
+    Aucune collecte réelle : sujets plausibles, auteurs décrits par leur type (aucun compte ni
+    personne réels nommés), contenus résumés. Upsert par libellé / par type d'auteur."""
+    maintenant = datetime.now()
+    tendances = [
+        ("Incidents à la frontière est (#الحدود_الشرقية)", "Facebook, TikTok, WhatsApp", 48200, 140, "securitaire", "eleve", "Hassaniya, arabe, français",
+         "Pic de mentions autour de rumeurs d'incursions armées près de Bassikounou et Fassala. Une partie des contenus relaie des images anciennes ou tournées hors du pays."),
+        ("Hausse des prix et du carburant (#غلاء_الأسعار)", "Facebook, YouTube", 36900, 85, "economique", "eleve", "Hassaniya, arabe",
+         "Mécontentement lié au coût de la vie ; rumeurs de pénurie de carburant qui encouragent le stockage et peuvent créer une pénurie réelle."),
+        ("Coupures d'eau et d'électricité à Nouakchott", "Facebook, WhatsApp", 21400, 60, "social", "modere", "Hassaniya, français",
+         "Plaintes de quartiers périphériques et appels à se rassembler devant les agences de distribution."),
+        ("Présence militaire étrangère au Sahel", "X, Facebook, YouTube", 15800, 40, "diplomatique", "modere", "Français, arabe, anglais",
+         "Narratifs concurrents sur les partenariats sécuritaires régionaux, dont certains présentent la Mauritanie comme alignée sur l'un ou l'autre camp."),
+        ("Afflux de réfugiés au camp de Mbera", "Facebook, TikTok", 12300, 35, "social", "modere", "Hassaniya, pulaar, français",
+         "Témoignages sur la saturation des services du camp et sur les tensions d'accès à l'eau et aux pâturages avec les populations hôtes."),
+        ("Départs en pirogue vers les Canaries", "TikTok, Facebook", 9700, 25, "securitaire", "eleve", "Wolof, pulaar, arabe",
+         "Vidéos valorisant la traversée et annonces à peine voilées de passeurs depuis Nouadhibou ; risque humain et de criminalité organisée."),
+        ("Discours de division communautaire", "Facebook, TikTok", 7400, 18, "social", "eleve", "Hassaniya, pulaar, soninké, wolof",
+         "Hausse de contenus opposant les communautés les unes aux autres, souvent depuis des comptes anonymes ou de la diaspora ; terrain propice aux campagnes d'influence."),
+    ]
+    publications = [
+        ("tiktok", "Compte anonyme de vidéos d'actualité (≈ 210 k abonnés)", 210000, 1250000, 48000, 9100,
+         "Vidéo présentée comme une attaque récente contre un poste militaire à la frontière est. Les images proviennent en réalité d'un autre pays et datent de plusieurs années.",
+         "securitaire", "critique", "faux_avere", "Hassaniya",
+         "Démenti officiel rapide avec éléments de preuve, signalement à la plateforme, information des unités du secteur pour prévenir la propagation locale.", 6),
+        ("facebook", "Page d'information locale (≈ 480 k abonnés)", 480000, 610000, 22500, 7800,
+         "Annonce d'une pénurie imminente de carburant « dans les 48 heures », avec appel implicite à faire des réserves.",
+         "economique", "eleve", "non_verifie", "Arabe",
+         "Vérifier l'état réel des stocks auprès des autorités compétentes ; communication officielle ciblée si la rumeur est infondée.", 10),
+        ("x", "Compte d'un commentateur régional sahélien (≈ 300 k abonnés)", 300000, 420000, 9600, 3100,
+         "Fil accusant la Mauritanie d'abriter des bases arrière de groupes armés, repris par plusieurs comptes de pays voisins.",
+         "diplomatique", "eleve", "non_verifie", "Français",
+         "Transmettre aux Affaires étrangères pour éventuelle réponse diplomatique ; surveiller les reprises par des médias étrangers.", 14),
+        ("youtube", "Chaîne de la diaspora (≈ 150 k abonnés)", 150000, 280000, 6200, 5400,
+         "Direct critiquant la hausse des prix et appelant à un rassemblement le vendredi suivant à Nouakchott.",
+         "social", "modere", "verifie", "Hassaniya",
+         "Information des services d'ordre public ; suivi de la mobilisation réelle, sans action sur le contenu lui-même.", 20),
+        ("whatsapp", "Message vocal relayé en chaîne (capture diffusée sur Facebook)", 0, 190000, 15400, 0,
+         "Appel à se rassembler devant les agences de distribution d'eau de plusieurs quartiers périphériques.",
+         "social", "modere", "non_verifie", "Hassaniya",
+         "Relayer l'information aux autorités locales concernées ; aucun moyen de traçage de l'auteur dans le cadre actuel.", 26),
+        ("facebook", "Groupe de petites annonces (≈ 95 k membres)", 95000, 88000, 2100, 1900,
+         "Annonces à peine voilées proposant des « voyages » depuis Nouadhibou, avec numéros de contact.",
+         "securitaire", "eleve", "verifie", "Wolof, arabe",
+         "Transmettre aux services chargés de la lutte contre le trafic de migrants ; demande de retrait à la plateforme.", 30),
+    ]
+    existantes = {t.libelle: t for t in db.query(models.TendanceSociale).all()}
+    for libelle, plateformes, volume, evolution, domaine, niveau, langues, resume in tendances:
+        t = existantes.get(libelle) or models.TendanceSociale(libelle=libelle)
+        t.plateformes, t.volume_mentions_24h, t.evolution_pct = plateformes, volume, evolution
+        t.domaine_risque, t.niveau_risque, t.langues, t.resume = domaine, niveau, langues, resume
+        t.date_maj = maintenant
+        db.add(t)
+    existantes_pub = {p.type_auteur: p for p in db.query(models.PublicationSociale).all()}
+    for plateforme, auteur, abonnes, vues, partages, commentaires, resume, domaine, niveau, verif, langue, action, heures in publications:
+        p = existantes_pub.get(auteur) or models.PublicationSociale(type_auteur=auteur)
+        p.plateforme, p.abonnes, p.vues, p.partages, p.commentaires = plateforme, abonnes, vues, partages, commentaires
+        p.resume, p.domaine_risque, p.niveau_risque, p.verification = resume, domaine, niveau, verif
+        p.langue, p.action_recommandee = langue, action
+        p.date_publication = maintenant - timedelta(hours=heures)
+        db.add(p)
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1374,6 +1439,7 @@ def init_db() -> None:
         realigner_operations_frontiere_est(db)
         localiser_incidents(db)
         localiser_alertes(db)
+        reseeder_social_media(db)
     finally:
         db.close()
 

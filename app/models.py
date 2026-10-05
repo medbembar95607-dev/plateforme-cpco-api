@@ -467,6 +467,46 @@ class SignalStrategique(Base):
     classification: Mapped[str] = mapped_column(String(20), default="confidentiel")
 
 
+class TendanceSociale(Base):
+    """Veille des réseaux sociaux (2026-10-05) : sujet en tendance en Mauritanie, avec le domaine
+    de risque qu'il représente. Données de démonstration : pas de collecte réelle à ce stade."""
+
+    __tablename__ = "tendances_sociales"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    libelle: Mapped[str] = mapped_column(String(200))  # sujet ou mot-dièse
+    plateformes: Mapped[str] = mapped_column(String(150))  # ex. "Facebook, TikTok"
+    volume_mentions_24h: Mapped[int] = mapped_column(Integer, default=0)
+    evolution_pct: Mapped[int] = mapped_column(Integer, default=0)  # variation sur 24 h
+    domaine_risque: Mapped[str] = mapped_column(String(20))  # securitaire, economique, diplomatique, social
+    niveau_risque: Mapped[str] = mapped_column(String(20))  # faible, modere, eleve, critique
+    langues: Mapped[str] = mapped_column(String(100))
+    resume: Mapped[str] = mapped_column(Text)
+    date_maj: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class PublicationSociale(Base):
+    """Publication à forte audience représentant un risque (sécuritaire, économique, diplomatique
+    ou social). Le contenu est résumé, jamais reproduit ; l'auteur est décrit par son type."""
+
+    __tablename__ = "publications_sociales"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    plateforme: Mapped[str] = mapped_column(String(30))  # facebook, tiktok, x, youtube, whatsapp
+    type_auteur: Mapped[str] = mapped_column(String(150))
+    abonnes: Mapped[int] = mapped_column(Integer, default=0)
+    vues: Mapped[int] = mapped_column(Integer, default=0)
+    partages: Mapped[int] = mapped_column(Integer, default=0)
+    commentaires: Mapped[int] = mapped_column(Integer, default=0)
+    resume: Mapped[str] = mapped_column(Text)
+    domaine_risque: Mapped[str] = mapped_column(String(20))
+    niveau_risque: Mapped[str] = mapped_column(String(20))
+    verification: Mapped[str] = mapped_column(String(20))  # non_verifie, faux_avere, verifie
+    langue: Mapped[str] = mapped_column(String(50))
+    action_recommandee: Mapped[str] = mapped_column(Text)
+    date_publication: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
 class SuiviExecution(Base):
     """Suivi d'exécution des ordres et instructions par unité, pour la vue du chef (délai tenu ou
     dépassé, compte rendu). Table volontairement séparée de orders/order_recipients (qui gèrent le
