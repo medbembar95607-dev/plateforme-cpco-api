@@ -1315,6 +1315,23 @@ def realigner_operations_frontiere_est(db: Session) -> None:
     db.commit()
 
 
+# Localisation des incidents de démonstration (2026-10-05), cohérente avec le dispositif à l'est.
+POSITIONS_INCIDENTS = {
+    "Zone A3": (-7.90, 15.35),               # groupe hostile détecté, zone menace A3
+    "Axe Nord-Ouest": (-6.62, 18.25),        # perte de liaison avec le Convoi, sur son secteur
+    "Poste logistique Nord": (-7.10, 22.42),  # retard de livraison, au poste logistique
+}
+
+
+def localiser_incidents(db: Session) -> None:
+    """Renseigne la position des incidents de démo encore non localisés (par localité)."""
+    for incident in db.query(models.Incident).filter(models.Incident.lon.is_(None)).all():
+        position = POSITIONS_INCIDENTS.get(incident.localite)
+        if position is not None:
+            incident.lon, incident.lat = position
+    db.commit()
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     migrer_colonnes_manquantes()
@@ -1332,6 +1349,7 @@ def init_db() -> None:
         reseeder_operations_geo(db)
         repositionner_frontiere_est(db)
         realigner_operations_frontiere_est(db)
+        localiser_incidents(db)
     finally:
         db.close()
 

@@ -115,6 +115,8 @@ class IncidentOut(BaseModel):
     statut: str
     declarant: str
     date_incident: datetime
+    lon: float | None = None
+    lat: float | None = None
 
 
 class IncidentCreate(BaseModel):
