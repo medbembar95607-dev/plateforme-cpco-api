@@ -41,13 +41,13 @@ def migrer_colonnes_manquantes() -> None:
         conn.commit()
 
 
-# Dispositif à l'est (2026-10-05) : chaque unité à environ 75 km à l'intérieur de la frontière avec
+# Dispositif à l'est (2026-10-05) : chaque unité (sauf le PC, à Kiffa) à environ 75 km à l'intérieur de la frontière avec
 # le Mali / l'Algérie, du nord-est au sud-est. Positions vérifiées dans le contour précis du pays
 # (marge large : aux petits zooms le fond de carte simplifie fortement le tracé des frontières).
 POSITIONS_FRONTIERE_EST = {
     "PA-NORD": (-7.27, 24.40),         # nord-est
     "POSTE-LOG-NORD": (-7.02, 22.30),  # nord-est
-    "PC-CPCO": (-6.74, 20.00),         # est
+    "PC-CPCO": (-11.40, 16.62),        # PC en retrait, à Kiffa (demande de Bardas du 2026-10-05)
     "CONVOI-LIMA": (-6.50, 18.00),     # est
     "BAT-1": (-6.45, 17.10),           # sud-est
     "CIE-ALPHA": (-6.30, 16.25),       # sud-est
