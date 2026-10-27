@@ -44,6 +44,8 @@ class Unit(Base):
     type_unite: Mapped[str] = mapped_column(String(50))  # pc, infanterie, artillerie, genie, logistique
     echelon: Mapped[str] = mapped_column(String(30))
     effectif: Mapped[int] = mapped_column(Integer, default=0)
+    # Effectif théorique (TED) : sert au niveau en personnel (effectif présent / théorique).
+    effectif_theorique: Mapped[int | None] = mapped_column(Integer, nullable=True)
     commandant: Mapped[str | None] = mapped_column(String(150), nullable=True)
     parent_unit_id: Mapped[str | None] = mapped_column(ForeignKey("units.id"), nullable=True)
     # Statut opérationnel (en_mission, en_progression, disponible, communication_degradee) — pas le statut

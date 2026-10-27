@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from .. import models
 from ..database import get_db
+from .logistics import list_logistics
 
 router = APIRouter(tags=["situation"])
 
@@ -60,14 +61,26 @@ def get_situation(db: Session = Depends(get_db)):
     effectifs_engages = db.query(func.sum(models.Unit.effectif)).scalar() or 0
     menaces_confirmees = db.query(models.Threat).filter(models.Threat.statut == "confirmee").count()
 
-    dernier_niveau_carburant = (
-        db.query(models.StockLevel)
-        .join(models.Stock)
-        .filter(models.Stock.type_stock == "carburant")
-        .order_by(models.StockLevel.horodatage.desc())
-        .all()
-    )
-    niveau_logistique_moyen = round(sum(sl.pct for sl in dernier_niveau_carburant) / len(dernier_niveau_carburant)) if dernier_niveau_carburant else 0
+    # Niveaux moyens par domaine : dernier niveau de stock de chaque unité suivie, puis moyenne.
+    lignes = list_logistics(db)
+
+    def moyenne(cle: str) -> int:
+        return round(sum(l[cle] for l in lignes) / len(lignes)) if lignes else 0
+
+    # Personnel : effectif présent / effectif théorique, sur les unités dont le TED est connu.
+    avec_ted = [u for u in units if u.effectif_theorique]
+    theorique = sum(u.effectif_theorique for u in avec_ted)
+    personnel = round(100 * sum(u.effectif for u in avec_ted) / theorique) if theorique else 0
+
+    niveaux = {
+        "personnel": personnel,
+        "armement": moyenne("armementPct"),
+        "munitions": moyenne("munitionsPct"),
+        "vivres": moyenne("vivresPct"),
+        "carburant": moyenne("carburantPct"),
+        "auto": moyenne("vehiculePct"),
+    }
+    niveau_logistique_moyen = round(sum(niveaux.values()) / len(niveaux))
 
     kpis = {
         "operationsActives": operations_actives,
@@ -76,6 +89,7 @@ def get_situation(db: Session = Depends(get_db)):
         "menacesDetectees": db.query(models.Threat).count(),
         "menacesConfirmees": menaces_confirmees,
         "niveauLogistiquePct": niveau_logistique_moyen,
+        "niveauxLogistiques": niveaux,
     }
 
     return {"unites": unites_out, "menaces": menaces, "checkpoints": checkpoints, "zones": zones, "axes": axes, "kpis": kpis}

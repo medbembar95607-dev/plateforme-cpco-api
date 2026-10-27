@@ -17,6 +17,9 @@ def migrer_colonnes_manquantes() -> None:
     table existante. Le disque étant persistant sur Render, une colonne ajoutée au modèle après
     coup doit être migrée explicitement, sinon l'ORM interroge une colonne qui n'existe pas."""
     colonnes_a_ajouter = {
+        "units": [
+            ("effectif_theorique", "INTEGER"),
+        ],
         "garnisons": [
             ("sante_pct", "INTEGER DEFAULT 80"),
             ("vehicule_pct", "INTEGER DEFAULT 80"),
@@ -1343,6 +1346,25 @@ POSITIONS_ALERTES = [
 ]
 
 
+# Effectifs théoriques (TED) des unités de démo (2026-10-27), pour le niveau en personnel du Point de Situation.
+EFFECTIFS_THEORIQUES = {
+    "PC-CPCO": 30,
+    "BAT-1": 600,
+    "CIE-ALPHA": 160,
+    "PA-NORD": 60,
+    "CONVOI-LIMA": 40,
+    "POSTE-LOG-NORD": 24,
+}
+
+
+def renseigner_effectifs_theoriques(db: Session) -> None:
+    """Renseigne l'effectif théorique des unités de démo qui n'en ont pas encore."""
+    for unite in db.query(models.Unit).filter(models.Unit.effectif_theorique.is_(None)).all():
+        if unite.code_unite in EFFECTIFS_THEORIQUES:
+            unite.effectif_theorique = EFFECTIFS_THEORIQUES[unite.code_unite]
+    db.commit()
+
+
 def localiser_alertes(db: Session) -> None:
     """Renseigne la position des alertes de démo encore non localisées (mot-clé du message)."""
     for alerte in db.query(models.Alert).filter(models.Alert.lon.is_(None)).all():
@@ -1511,6 +1533,7 @@ def init_db() -> None:
         realigner_operations_frontiere_est(db)
         localiser_incidents(db)
         localiser_alertes(db)
+        renseigner_effectifs_theoriques(db)
         reseeder_social_media(db)
         reseeder_medias(db)
     finally:
